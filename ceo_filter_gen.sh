@@ -85,9 +85,9 @@ MIDDLE_NAME=$(echo "${NAME}" | sed -r 's/^[a-zA-Z\-\.]+\s+//' | sed -r 's/\s*[a-
 if [ -n "$MIDDLE_NAME" ]; then
   MIDDLE_NAME_PARTICLE=$(echo "${MIDDLE_NAME:1:`echo ${#MIDDLE_NAME}`}")
   if [ -n "$MIDDLE_NAME_PARTICLE" ]; then
-    MIDDLE_NAME=" (${MIDDLE_NAME:0:1}(\.|${MIDDLE_NAME_PARTICLE})?)?"
+    MIDDLE_NAME="( ${MIDDLE_NAME:0:1}(\.|${MIDDLE_NAME_PARTICLE})?)?"
   else
-    MIDDLE_NAME=" (${MIDDLE_NAME}\.?)?"
+    MIDDLE_NAME="( ${MIDDLE_NAME}\.?)?"
   fi
 fi
 
@@ -120,7 +120,6 @@ NAME="(${FIRST_NAME} ${LAST_NAME})|(${LAST_NAME},? ${FIRST_NAME})"
 # LOGICALLY, MOST NAMES WILL NEVER HAVE MORE THAN A DOUBLE-CHARACTER.
 # ^^ Actually, lots of names (like William) will have many for I / L.
 for (( i=0 ; i<`echo ${#NAME}` ; i++ )); do
-    echo "${NAME:$i:1}"
   if [[ "${NAME:$i:1}" =~ [IiLl] ]]; then
     finish_loop="false"
     for (( j=1 ; finish_loop=="false" ; j++ )); do
@@ -196,4 +195,5 @@ echo "Regex successfully generated for name \"${TC_CYAN}${ORIG_NAME}${TC_NORMAL}
 echo -e "Please enter this into the content filters section of an ${TC_GREEN}ESG/ESS${TC_NORMAL} for ${TC_YELLOW}headers${TC_NORMAL}.\n"
 echo "${REGEX}"
 echo -e "\nFor confidence, test the Regex here: ${TC_RED}https://regoio.herokuapp.com/${TC_NORMAL}"
+echo "${TC_BOLD}PLEASE NOTE: THE TESTER ABOVE IS CASE-SENSITIVE!!!${TC_NORMAL}"
 exit 0

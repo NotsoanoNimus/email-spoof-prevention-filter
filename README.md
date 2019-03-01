@@ -5,14 +5,22 @@ It is designed to digest a name (_usually an executive or authority of sorts_) a
 
 Here's a sample output from the script...
 ```
-From:\s*"?\s*((J(\.|[o0]h?n(a[t7]han|a[t7]h[o0]n)?)?\s+(Y\.?)?\s+[s5]m[il1]{0,2}[t7]h)|([s5]m[il1]{0,2}[t7]h,?\s+J(\.|[o0]h?n(a[t7]han|a[t7]h[o0]n)?)?\s+(Y\.?)?))\s*"?\s+<
+[zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "John Y. Smith" -c
+Regex successfully generated for name "John Y. Smith"!
+Please enter this into the content filters section of an ESG/ESS for headers.
+
+From:\s*"?\s*((J(\.|[Oo0]h?n(a[Tt7]han|a[Tt7]h[Oo0]n|ny|n[IiLl1]{0,2}[Ee3])?)?(\s+Y\.?)?\s+[Ss5]m[IiLl1]{0,2}[Tt7]h)|([Ss5]m[IiLl1]{0,2}[Tt7]h,?\s+J(\.|[Oo0]h?n(a[Tt7]han|a[Tt7]h[Oo0]n|ny|n[IiLl1]{0,2}[Ee3])?)?(\s+Y\.?)?))\s*"?\s+<
+
+For confidence, test the Regex here: https://regoio.herokuapp.com/
+PLEASE NOTE: THE TESTER ABOVE IS CASE-SENSITIVE!!!
 ```
 
-Seriously. It will match the name "**John Y. Smith**" in the following header variations:
+Seriously. That output will match any case too.
+It will match the name "**John Y. Smith**" in the following header variations:
 ```
-From: "Jon Smith <jsmith@legit.enterprise.net>" <fake@spammer.net>
-From:    "  Smith, Johnathon "   <notreally@yahoo.net>
-From: J Y Smith <somefakeaddress@gmail.com>
+From: "jon SmiTH <jsmith@legit.enterprise.net>" <fake@spammer.net>
+From:    "  Sml7h, Johnathon "   <notreally@yahoo.net>
+From: J Y 5m1th <somefakeaddress@gmail.com>
 From:"Smith, J" <other@fake.address>
 ```
 You get the point...
