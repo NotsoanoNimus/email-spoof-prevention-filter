@@ -11,9 +11,9 @@ From:\s*"?\s*((J(\.|[o0]h?n(a[t7]han|a[t7]h[o0]n)?)?\s+(Y\.?)?\s+[s5]m[il1]{0,2}
 Seriously. It will match the name "**John Y. Smith**" in the following header variations:
 ```
 From: "Jon Smith <jsmith@legit.enterprise.net>" <fake@spammer.net>
-From:    "  Smith, Johnathon "   <fake@spammer.net>
-From: J Y Smith <fake@spammer.net>
-From:"Smith, J" <fake@spammer.net>
+From:    "  Smith, Johnathon "   <notreally@yahoo.net>
+From: J Y Smith <somefakeaddress@gmail.com>
+From:"Smith, J" <other@fake.address>
 ```
 You get the point...
 
