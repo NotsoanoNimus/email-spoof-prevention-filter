@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# DEFER_INFO.sh
+# CEO_FILTER_GEN.sh
 : Description: Create special regex content filters to prevent CEO display-name spoofing on ESG and ESS.
 : Author: Zachary Puhl
 : Contact: zpuhl@barracuda.com // postmaster@yeethop.xyz
 : Date: 28 February, 2019
 : Product: Email Security Gateway, Email Security Service
 : Firmware: -ESG- 8.1.0.003, -ESS- 2019.1
-###############
+####################
 
 ###################################################
 #Declare initial functions to simplify main script.
