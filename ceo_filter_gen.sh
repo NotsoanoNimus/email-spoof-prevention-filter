@@ -170,9 +170,7 @@ done
 # 4: Replace 7/T with the wilcard for each other.
 # 5: Replace 0/o with the wildcard for each other.
 # 6: Replace ' ' (spaces between the name) with '\s+' (one + spaces).
-# 7: Finish the parenthesis between the spaces and at the names.
-# NOTE: These maintain a difference in case because some ESGs will have case-sensitive content filtering.
-# TODO: ADD AN OPTION TO MAKE THE REGEX CASE SENSITIVE!
+# 7: Finish the parenthesis, the double-quotes, and add the portion to match the From header.
 if [[ -z "$CASE_INSENSITIVE" ]]; then
   REGEX=$(printf "${NAME}" | sed -r 's/[IiLl]+/\[IiLl1\]/g' \
     | sed -r 's/[Ee]+/\[Ee3\]/g' \
