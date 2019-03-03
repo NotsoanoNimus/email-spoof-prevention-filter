@@ -20,7 +20,7 @@ function usage() {
   echo "  name."
   echo -e "CEO-Name: The CEO-Name field should be from FIRST to LAST name.\n"
   echo "OPTIONS:"
-  echo -e "   -c    Make the regex case-sensitive.\n"
+  echo -e "   -i    Generate a NON-case-sensitive variant (shortens it).\n"
   echo "EXAMPLES:"
   echo "    $0 \"John F. Smith\" -c"
   echo "        Will generate a regex for variations of the above name like:"
@@ -35,7 +35,7 @@ NAME=
 FIRST_NAME=
 LAST_NAME=
 REGEX=
-CASE_INSENSITIVE="TRUE"
+CASE_INSENSITIVE=
 
 # Quick checks for usage requests, or other failures.
 [[ -z $1 || "$1" =~ ^\-.*$ ]] && usage || NAME="$1"
@@ -60,10 +60,9 @@ fi
 shift
 
 # Parse arguments and flags.
-while getopts c param; do
+while getopts i param; do
   case $param in
-    c) CASE_INSENSITIVE=
-    ;;
+    i) CASE_INSENSITIVE="TRUE";;
     *) usage ;;
   esac
 done
@@ -95,12 +94,60 @@ fi
 FIRST_NAME=$(echo "${FIRST_NAME}" | cut -d' ' -f1)
 
 # Get a temp var and set it to all lower-case (for ease of regex comparison)
+# !!!!!!!!!!!!!!!!!!!!!
+# NOTE: These custom rules CANNOT have an e,i,l,o,t, or s in between a []
+#     because it will later expand to that substitution in the final steps.
+# !!!!!!!!!!!!!!!!!!!!!
 FIRST_NAME_PARSE=$(echo "${FIRST_NAME}" | tr '[:upper:]' '[:lower:]')
 # Since first names take many different forms and shapes, account for them.
 if [[ "${FIRST_NAME_PARSE}" =~ ^joh?n(athan|athon|ny|nie)? ]]; then
   FIRST_NAME="J(\.|oh?n(athan|athon|ny|nie)?)?${MIDDLE_NAME}"
-elif [[ "${FIRST_NAME_PARSE}" =~ ^dan(iel)? ]]; then
-  FIRST_NAME="D(\.|an(iel)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^dan(n(y|ie)|iel)? ]]; then
+  FIRST_NAME="D(\.|an(n(y|ie)|iel)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^zac(k|[kh][ae]ry)? ]]; then
+  FIRST_NAME="Z(\.|ac(k|[kh](ery|ary))?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^(bob(b?(y|ie))?|(rob(ert|b?(y|ie))?)) ]]; then
+  FIRST_NAME="(([BR]\.?)|Bob(b?(y|ie))?|Rob(ert|b?(y|ie))?)${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^th?om(as|m?(y|ie))? ]]; then
+  FIRST_NAME="T(\.|h?om(as|m?(y|ie))?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^([bw]ill(iam|y|ie)?) ]]; then
+  FIRST_NAME="[BW](\.|ill(iam|y|ie)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^al(ice|lison|l?ie) ]]; then
+  FIRST_NAME="A(\.|l(ice|lison|l?ie))?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^e?li(za(beth)?|sa|zz?(y|ie)) ]]; then
+  FIRST_NAME="E?li(za(beth)?|sa|zz?(y|ie)?)${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^ste(v|ph)en? ]]; then
+  FIRST_NAME="S(\.|te(v|ph)en?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^s(hawn|ean) ]]; then
+  FIRST_NAME="S(\.|hawn|ean)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^dav(e|id) ]]; then
+  FIRST_NAME="D(\.|av(e|id))?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^greg(ory)? ]]; then
+  FIRST_NAME="G(\.|reg(ory)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^don(ald|n?(y|ie))? ]]; then
+  FIRST_NAME="D(\.|on(ald|n?(y|ie))?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^ron(ald|n?(y|ie))? ]]; then
+  FIRST_NAME="R(\.|on(ald|n?(y|ie))?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^(miriam|mar(ie|y|iam)) ]]; then
+  FIRST_NAME="M(\.|(i|a)riam|y|ie)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^mi(cha?el|key?) ]]; then
+  FIRST_NAME="M(\.|i(key?|ch))?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^mat(t?hew)? ]]; then
+  FIRST_NAME="M(\.|at(t?hew)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^ken(n?(y|ie|eth))? ]]; then
+  FIRST_NAME="K(\.|en(n?(y|ie|eth))?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^ric[hk]?(ardo?|ie)? ]]; then
+  FIRST_NAME="R(\.|ic[hk]?(ardo?|ie)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^m(oe?|(u|o)hamm?(a|e|u|i)(d|t)) ]]; then
+  FIRST_NAME="M(\.|oe?|(u|o)hamm?(a|u|e|i)(d|t))?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^jo(s?e(y|ph)?)? ]]; then
+  FIRST_NAME="J(\.|o(s?e(y|ph)?)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^sam(uel|m?(ie|y)|antha)? ]]; then
+  # This one might be dangerous as a unisex name. If "Samuel Smith" is intended to be
+  #  blocked, this might also block "Samantha Smith". Leaving for now.
+  FIRST_NAME="S(\.|am(uel|m?(ie|y)|antha)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^jess((e|i)ca|y|ie)? ]]; then
+  FIRST_NAME="J(\.|ess((e|i)ca|y|ie)?)?${MIDDLE_NAME}"
 else
   # Since it matches no names in our index above, set it with the generic pattern:
   #    (\.|${FIRST_NAME:1:strlen(FIRST_NAME)}) ---> Example: E(\.|ric)?

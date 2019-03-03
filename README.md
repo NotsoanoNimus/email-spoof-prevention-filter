@@ -5,7 +5,7 @@ It is designed to digest a name (_usually an executive or authority of sorts_) a
 
 Here's a sample output from the script...
 ```
-[zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "John Y. Smith" -c
+[zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "John Y. Smith"
 Regex successfully generated for name "John Y. Smith"!
 Please enter this into the content filters section of an ESG/ESS for headers.
 
