@@ -12,6 +12,8 @@
 ###################################################
 #Declare initial functions to simplify main script.
 
+# usage:
+# Display the usage information of the script.
 function usage() {
   echo "USAGE: $0 \"CEO-Name\" [OPTIONS]..."
   echo "Generate an ESG/ESS-compliant regular expression for a Display Name"
@@ -29,7 +31,7 @@ function usage() {
   exit 1
 }
 
-# Set initial state.
+# Set initial state. Ensure relevant variables are not defined.
 ORIG_NAME=
 NAME=
 FIRST_NAME=
@@ -59,15 +61,15 @@ fi
 # Roll the "CEO-Name" field off the arguments.
 shift
 
-# Parse arguments and flags.
+# Parse arguments and flags. At this time it's pretty minimal.
 while getopts i param; do
   case $param in
-    i) CASE_INSENSITIVE="TRUE";;
+    i) CASE_INSENSITIVE="TRUE" ;;
     *) usage ;;
   esac
 done
 
-# Strip some special characters (like .)
+# Strip some special characters (like .). Might add to this SED later.
 NAME=$(echo "$NAME" | sed -r 's/\.//g')
 
 # First Name will go all the way up to the last word in the name. (Initally includes the middle name)
@@ -81,11 +83,16 @@ LAST_NAME=$(echo "$NAME" | grep -Poi '[a-zA-Z\-\.]+\s*$')
 # NOTE: The generated regex makes the middle name entirely optional.
 MIDDLE_NAME=$(echo "${NAME}" | sed -r 's/^[a-zA-Z\-\.]+\s+//' | sed -r 's/\s*[a-zA-Z\-\.]+\s*$//')
 
+# If there's a middle name, chop off the first Character to see whether or not it's
+#   just an initial. Remember that by this time, any '.' characters are stripped.
 if [ -n "$MIDDLE_NAME" ]; then
   MIDDLE_NAME_PARTICLE=$(echo "${MIDDLE_NAME:1:`echo ${#MIDDLE_NAME}`}")
   if [ -n "$MIDDLE_NAME_PARTICLE" ]; then
+    # If there is more than just an initial, set up the middle name to be both full or initial.
+    # EXAMPLE: "Tracy" --> Particle="racy" --> New MIDDLE_NAME = T(\.|racy)? to cover T., T, or Tracy
     MIDDLE_NAME="( ${MIDDLE_NAME:0:1}(\.|${MIDDLE_NAME_PARTICLE})?)?"
   else
+    # Otherwise, the middle name becomes the initial with an optional . character
     MIDDLE_NAME="( ${MIDDLE_NAME}\.?)?"
   fi
 fi
@@ -94,12 +101,14 @@ fi
 FIRST_NAME=$(echo "${FIRST_NAME}" | cut -d' ' -f1)
 
 # Get a temp var and set it to all lower-case (for ease of regex comparison)
+FIRST_NAME_PARSE=$(echo "${FIRST_NAME}" | tr '[:upper:]' '[:lower:]')
+
+# Since first names take many different forms and shapes, account for them.
 # !!!!!!!!!!!!!!!!!!!!!
 # NOTE: These custom rules CANNOT have an e,i,l,o,t, or s in between a []
 #     because it will later expand to that substitution in the final steps.
+#     So, regexes are intentionally a bit sloppy here (;
 # !!!!!!!!!!!!!!!!!!!!!
-FIRST_NAME_PARSE=$(echo "${FIRST_NAME}" | tr '[:upper:]' '[:lower:]')
-# Since first names take many different forms and shapes, account for them.
 if [[ "${FIRST_NAME_PARSE}" =~ ^joh?n(athan|athon|ny|nie)? ]]; then
   FIRST_NAME="J(\.|oh?n(athan|athon|ny|nie)?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^dan(n(y|ie)|iel)? ]]; then
@@ -107,11 +116,11 @@ elif [[ "${FIRST_NAME_PARSE}" =~ ^dan(n(y|ie)|iel)? ]]; then
 elif [[ "${FIRST_NAME_PARSE}" =~ ^zac(k|[kh][ae]ry)? ]]; then
   FIRST_NAME="Z(\.|ac(k|[kh](ery|ary))?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^(bob(b?(y|ie))?|(rob(ert|b?(y|ie))?)) ]]; then
-  FIRST_NAME="(([BR]\.?)|Bob(b?(y|ie))?|Rob(ert|b?(y|ie))?)${MIDDLE_NAME}"
+  FIRST_NAME="(((B|R)\.?)|Bob(b?(y|ie))?|Rob(ert|b?(y|ie))?)${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^th?om(as|m?(y|ie))? ]]; then
   FIRST_NAME="T(\.|h?om(as|m?(y|ie))?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^([bw]ill(iam|y|ie)?) ]]; then
-  FIRST_NAME="[BW](\.|ill(iam|y|ie)?)?${MIDDLE_NAME}"
+  FIRST_NAME="(B|W)(\.|ill(iam|y|ie)?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^al(ice|lison|l?ie) ]]; then
   FIRST_NAME="A(\.|l(ice|lison|l?ie))?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^e?li(za(beth)?|sa|zz?(y|ie)) ]]; then
@@ -150,7 +159,7 @@ elif [[ "${FIRST_NAME_PARSE}" =~ ^jess((e|i)ca|y|ie)? ]]; then
   FIRST_NAME="J(\.|ess((e|i)ca|y|ie)?)?${MIDDLE_NAME}"
 else
   # Since it matches no names in our index above, set it with the generic pattern:
-  #    (\.|${FIRST_NAME:1:strlen(FIRST_NAME)}) ---> Example: E(\.|ric)?
+  #    ${FIRST_NAME:0:1}(\.|${FIRST_NAME:1:strlen(FIRST_NAME)}) ---> Example: E(\.|ric)?
   FIRST_NAME_PARTICLE=$(echo "${FIRST_NAME:1:`echo ${#FIRST_NAME}`}")
   FIRST_NAME="${FIRST_NAME:0:1}(\.|${FIRST_NAME_PARTICLE})?"
   # Now combine it with the MIDDLE_NAME, if any.
@@ -159,19 +168,23 @@ fi
 
 
 # Build a version of the regex that will catch the name in the formal and informal pattern.
+#   So, match both: "John H. Smith" and "Smith, John H." formats.
 NAME="(${FIRST_NAME} ${LAST_NAME})|(${LAST_NAME},? ${FIRST_NAME})"
 
 
-# Scan the string now and condense similar chars from the first 5 below.
-# THE BELOW FOR LOOP IS OVERLY-COMPLEX AND COULD BREAK.
-# LOGICALLY, MOST NAMES WILL NEVER HAVE MORE THAN A DOUBLE-CHARACTER.
-# ^^ Actually, lots of names (like William) will have many for I / L.
+# Scan the string now and condense similar chars into a regex quantity operator.
+# EXAMPLE: The name William. This will hit the 'i' and then look ahead until the last
+#     consecutive 'i' or 'l', once it sees 4 of the chars consecutively, it will drop in
+#     a {3,5} into the string. The NEXT STEP will remove all the extras from the string
+#     and condense them into a single character properly.
 for (( i=0 ; i<`echo ${#NAME}` ; i++ )); do
   if [[ "${NAME:$i:1}" =~ [IiLl] ]]; then
+    # This conditional is probably not necessary here...
     finish_loop="false"
     for (( j=1 ; finish_loop=="false" ; j++ )); do
       if [[ ! "${NAME:($i+$j):1}" =~ [IiLl] ]]; then
         if [[ j > 2 ]]; then
+          # Create a tolerance of one-less and one-more for special characters.
           NAME="${NAME:0:$i+1}{`expr $j - 1`,`expr $j + 1`}${NAME:$i+$j:`echo ${#NAME}`}"
           finish_loop="true"
           i=`expr $i + $j + 4`
@@ -179,6 +192,8 @@ for (( i=0 ; i<`echo ${#NAME}` ; i++ )); do
         fi
       fi
     done
+# The rest of these NEED to be condensed with the quantity operator because they will later
+#    be substituted with a SINGLE [.] representation, so the quantity is needed if there's 2.
   elif [[ "${NAME:$i:1}" =~ [Ee] ]]; then
     if [[ "${NAME:$i+1:1}" =~ [Ee] ]]; then
       NAME="${NAME:0:$i+1}{1,3}${NAME:$i+2:`echo ${#NAME}`}"
@@ -207,23 +222,32 @@ for (( i=0 ; i<`echo ${#NAME}` ; i++ )); do
     else
       continue
     fi
+  elif [[ "${NAME:$i:1}" =~ [Bb] ]]; then
+    if [[ "${NAME:$i+1:1}" =~ [Bb] ]]; then
+      NAME="${NAME:0:$i+1}{1,3}${NAME:$i+2:`echo ${#NAME}`}"
+      i=`expr $i + 5`
+    else
+      continue
+    fi
   fi
 done
 
 # All the name needs is a TR or a SED to replace typosquats.
-# 1: Replace i/l/1 with the wildcard for each other.
-# 2: Replace e/3 with the wilcard for each other.
-# 3: Replace 5/S with the wildcard for each other.
-# 4: Replace 7/T with the wilcard for each other.
-# 5: Replace 0/o with the wildcard for each other.
-# 6: Replace ' ' (spaces between the name) with '\s+' (one + spaces).
-# 7: Finish the parenthesis, the double-quotes, and add the portion to match the From header.
+# 1: Replace I/i/L/l with the typosquatting characters.
+# 2: Replace E/e with the typosquatting characters.
+# 3: Replace S/S with the typosquatting characters.
+# 4: Replace T/t with the typosquatting characters.
+# 5: Replace O/o with the typosquatting characters.
+# 6: Replace B/b with the typosquatting characters.
+# 7: Replace ' ' (spaces between the name) with '\s+' (one + spaces).
+# 8: Finish the parenthesis, the double-quotes, and add the portion to match the From header.
 if [[ -z "$CASE_INSENSITIVE" ]]; then
   REGEX=$(printf "${NAME}" | sed -r 's/[IiLl]+/\[IiLl1\]/g' \
     | sed -r 's/[Ee]+/\[Ee3\]/g' \
     | sed -r 's/[Ss]+/\[Ss5\]/g' \
     | sed -r 's/[Tt]+/\[Tt7\]/g' \
     | sed -r 's/[Oo]+/\[Oo0\]/g' \
+    | sed -r 's/[Bb]+/\[Bb8\]/g' \
     | sed -r 's/\s+/\\s\+/g' \
     | sed -r 's/^/From\:\\s\*"\?\\s\*\(/g' | sed -r 's/$/\)\\s\*"\?\\s\+\</g')
 else
@@ -232,6 +256,7 @@ else
     | sed -r 's/[Ss]+/\[s5\]/g' \
     | sed -r 's/[Tt]+/\[t7\]/g' \
     | sed -r 's/[Oo]+/\[o0\]/g' \
+    | sed -r 's/[Bb]+/\[Bb8\]/g' \
     | sed -r 's/\s+/\\s\+/g' \
     | sed -r 's/^/From\:\\s\*"\?\\s\*\(/g' | sed -r 's/$/\)\\s\*"\?\\s\+\</g')
 fi
