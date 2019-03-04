@@ -34,7 +34,11 @@ function usage() {
 # Set initial state. Ensure relevant variables are not defined.
 ORIG_NAME=
 NAME=
+ORIG_FIRST_NAME=
 FIRST_NAME=
+ORIG_MIDDLE_NAME=
+MIDDLE_NAME=
+ORIG_LAST_NAME=
 LAST_NAME=
 REGEX=
 CASE_INSENSITIVE=
@@ -76,12 +80,15 @@ NAME=$(echo "$NAME" | sed -r 's/\.//g')
 FIRST_NAME=$(echo "$NAME" | sed -r 's/\s+[a-zA-Z\-\.]+\s*$//g')
 # Last Name will be the last word after the final space.
 LAST_NAME=$(echo "$NAME" | grep -Poi '[a-zA-Z\-\.]+\s*$')
-
+# Save the original last name.
+ORIG_LAST_NAME="${LAST_NAME}"
 
 
 # If there's a Middle Name (or initial), set it up here.
 # NOTE: The generated regex makes the middle name entirely optional.
 MIDDLE_NAME=$(echo "${NAME}" | sed -r 's/^[a-zA-Z\-\.]+\s+//' | sed -r 's/\s*[a-zA-Z\-\.]+\s*$//')
+# Save the caught Middle Name for later...
+ORIG_MIDDLE_NAME="${MIDDLE_NAME}"
 
 # If there's a middle name, chop off the first Character to see whether or not it's
 #   just an initial. Remember that by this time, any '.' characters are stripped.
@@ -98,7 +105,9 @@ if [ -n "$MIDDLE_NAME" ]; then
 fi
 
 # Now that the middle name is sorted, discard it from the FIRST_NAME variable.
+# ... And save it for later.
 FIRST_NAME=$(echo "${FIRST_NAME}" | cut -d' ' -f1)
+ORIG_FIRST_NAME="${FIRST_NAME}"
 
 # Get a temp var and set it to all lower-case (for ease of regex comparison)
 FIRST_NAME_PARSE=$(echo "${FIRST_NAME}" | tr '[:upper:]' '[:lower:]')
@@ -265,5 +274,9 @@ echo "Regex successfully generated for name \"${TC_CYAN}${ORIG_NAME}${TC_NORMAL}
 echo -e "Please enter this into the content filters section of an ${TC_GREEN}ESG/ESS${TC_NORMAL} for ${TC_YELLOW}headers${TC_NORMAL}.\n"
 echo "${REGEX}"
 echo -e "\nFor confidence, test the Regex here: ${TC_RED}https://regoio.herokuapp.com/${TC_NORMAL}"
-echo "${TC_BOLD}PLEASE NOTE: THE TESTER ABOVE IS CASE-SENSITIVE!!!${TC_NORMAL}"
+echo -e "${TC_BOLD}PLEASE NOTE: THE TESTER ABOVE IS CASE-SENSITIVE!!!${TC_NORMAL}\n"
+echo "Try out some of these examples in the tester above and mutate them as you please:"
+echo "    From: ${ORIG_LAST_NAME}, ${ORIG_FIRST_NAME} ${ORIG_MIDDLE_NAME} <fake@fake.com>"
+echo "    From: \"`echo ${ORIG_FIRST_NAME} | sed 's/[oO]/0/g' | sed 's/[iIlL]/1/g'` ${ORIG_LAST_NAME}  \" <test@notexist.net>"
+echo "    From:${ORIG_LAST_NAME} ${ORIG_FIRST_NAME} <${ORIG_FIRST_NAME:0:1}${ORIG_LAST_NAME}@legit.domain.com> <spammer@badguys.com>"
 exit 0
