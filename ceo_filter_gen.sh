@@ -256,7 +256,7 @@ else
     | sed -r 's/[Ss]+/\[s5\]/g' \
     | sed -r 's/[Tt]+/\[t7\]/g' \
     | sed -r 's/[Oo]+/\[o0\]/g' \
-    | sed -r 's/[Bb]+/\[Bb8\]/g' \
+    | sed -r 's/[Bb]+/\[b8\]/g' \
     | sed -r 's/\s+/\\s\+/g' \
     | sed -r 's/^/From\:\\s\*"\?\\s\*\(/g' | sed -r 's/$/\)\\s\*"\?\\s\+\</g')
 fi
