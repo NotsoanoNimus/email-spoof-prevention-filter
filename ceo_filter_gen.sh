@@ -166,6 +166,12 @@ elif [[ "${FIRST_NAME_PARSE}" =~ ^sam(uel|m?(ie|y)|antha)? ]]; then
   FIRST_NAME="S(\.|am(uel|m?(ie|y)|antha)?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^jess((e|i)ca|y|ie)? ]]; then
   FIRST_NAME="J(\.|ess((e|i)ca|y|ie)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^(an)?th?o(ine|n(ie|y)) ]]; then
+  FIRST_NAME="(An|T)(\.|h?o(ine|n(ie|y)))?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^and(y|ie|rew) ]]; then
+  FIRST_NAME="A(\.|nd(y|ie|rew))?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^br(i|e)e?(ann?a)? ]]; then
+  FIRST_NAME="B(\.|r(i|e)e?(ann?a)?)?${MIDDLE_NAME}"
 else
   # Since it matches no names in our index above, set it with the generic pattern:
   #    ${FIRST_NAME:0:1}(\.|${FIRST_NAME:1:strlen(FIRST_NAME)}) ---> Example: E(\.|ric)?
@@ -189,55 +195,46 @@ NAME="(${FIRST_NAME} ${LAST_NAME})|(${LAST_NAME},? ${FIRST_NAME})"
 for (( i=0 ; i<`echo ${#NAME}` ; i++ )); do
   if [[ "${NAME:$i:1}" =~ [IiLl] ]]; then
     # This conditional is probably not necessary here...
-    finish_loop="false"
-    for (( j=1 ; finish_loop=="false" ; j++ )); do
+    for (( j=1 ; ; j++ )); do
       if [[ ! "${NAME:($i+$j):1}" =~ [IiLl] ]]; then
-        if [[ j > 2 ]]; then
+        if [[ $j -gt 1 ]]; then
           # Create a tolerance of one-less and one-more for special characters.
+          #   EXAMPLE: Ellie ---> E[iIlL1]{2,4}e
           NAME="${NAME:0:$i+1}{`expr $j - 1`,`expr $j + 1`}${NAME:$i+$j:`echo ${#NAME}`}"
-          finish_loop="true"
-          i=`expr $i + $j + 4`
+          # Increment the string "pointer" forward to account for the addition of the quantifier.
+          i=`expr $i + $j + 3`
           break
-        fi
+        else break; fi
       fi
     done
 # The rest of these NEED to be condensed with the quantity operator because they will later
 #    be substituted with a SINGLE [.] representation, so the quantity is needed if there's 2.
+# EXAMPLE: Jassa -> Jas{1,3}a ---> Once this is crunched through final SED step: Ja[Ss5]{1,3}a
   elif [[ "${NAME:$i:1}" =~ [Ee] ]]; then
     if [[ "${NAME:$i+1:1}" =~ [Ee] ]]; then
       NAME="${NAME:0:$i+1}{1,3}${NAME:$i+2:`echo ${#NAME}`}"
       i=`expr $i + 5`
-    else
-      continue
-    fi
+    else continue;fi
   elif [[ "${NAME:$i:1}" =~ [Ss] ]]; then
     if [[ "${NAME:$i+1:1}" =~ [Ss] ]]; then
       NAME="${NAME:0:$i+1}{1,3}${NAME:$i+2:`echo ${#NAME}`}"
       i=`expr $i + 5`
-    else
-      continue
-    fi
+    else continue; fi
   elif [[ "${NAME:$i:1}" =~ [Tt] ]]; then
     if [[ "${NAME:$i+1:1}" =~ [Tt] ]]; then
       NAME="${NAME:0:$i+1}{1,3}${NAME:$i+2:`echo ${#NAME}`}"
       i=`expr $i + 5`
-    else
-      continue
-    fi
+    else continue; fi
   elif [[ "${NAME:$i:1}" =~ [Oo] ]]; then
     if [[ "${NAME:$i+1:1}" =~ [Oo] ]]; then
       NAME="${NAME:0:$i+1}{1,3}${NAME:$i+2:`echo ${#NAME}`}"
       i=`expr $i + 5`
-    else
-      continue
-    fi
+    else continue; fi
   elif [[ "${NAME:$i:1}" =~ [Bb] ]]; then
     if [[ "${NAME:$i+1:1}" =~ [Bb] ]]; then
       NAME="${NAME:0:$i+1}{1,3}${NAME:$i+2:`echo ${#NAME}`}"
       i=`expr $i + 5`
-    else
-      continue
-    fi
+    else continue; fi
   fi
 done
 
@@ -270,13 +267,15 @@ else
     | sed -r 's/^/From\:\\s\*"\?\\s\*\(/g' | sed -r 's/$/\)\\s\*"\?\\s\+\</g')
 fi
 
+
+# Everything is done, output the final result and other information.
 echo "Regex successfully generated for name \"${TC_CYAN}${ORIG_NAME}${TC_NORMAL}\"!"
 echo -e "Please enter this into the content filters section of an ${TC_GREEN}ESG/ESS${TC_NORMAL} for ${TC_YELLOW}headers${TC_NORMAL}.\n"
 echo "${REGEX}"
 echo -e "\nFor confidence, test the Regex here: ${TC_RED}https://regoio.herokuapp.com/${TC_NORMAL}"
 echo -e "${TC_BOLD}PLEASE NOTE: THE TESTER ABOVE IS CASE-SENSITIVE!!!${TC_NORMAL}\n"
 echo "Try out some of these examples in the tester above and mutate them as you please:"
-echo "    From: ${ORIG_LAST_NAME}, ${ORIG_FIRST_NAME} ${ORIG_MIDDLE_NAME} <fake@fake.com>"
+echo "    From: `echo ${ORIG_LAST_NAME} | sed -r 's/[bB]/8/g'`, ${ORIG_FIRST_NAME} ${ORIG_MIDDLE_NAME} <fake@fake.com>"
 echo "    From: \"`echo ${ORIG_FIRST_NAME} | sed 's/[oO]/0/g' | sed 's/[iIlL]/1/g'` ${ORIG_LAST_NAME}  \" <test@notexist.net>"
-echo "    From:${ORIG_LAST_NAME} ${ORIG_FIRST_NAME} <${ORIG_FIRST_NAME:0:1}${ORIG_LAST_NAME}@legit.domain.com> <spammer@badguys.com>"
+echo "    From:\"${ORIG_LAST_NAME} ${ORIG_FIRST_NAME} <${ORIG_FIRST_NAME:0:1}${ORIG_LAST_NAME}@legit.domain.com>\" <spammer@badguys.com>"
 exit 0
