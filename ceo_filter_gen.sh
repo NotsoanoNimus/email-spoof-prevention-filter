@@ -81,7 +81,9 @@ done
 
 #Make sure the look-ahead variable/arg is an email address.
 if [[ -n "${LOOK_AHEAD_ADDRESS}" ]]; then
-  if [[ ! "${LOOK_AHEAD_ADDRESS}" =~ ^[a-zA-Z0-9\+\-_\.=%]+\@[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9]{2,}$ ]]; then
+  # The below test is causing some issues on different Linux distros, so I'm going to enforce a Perl regex.
+  #if [[ ! "${LOOK_AHEAD_ADDRESS}" =~ ^[a-zA-Z0-9\+\-_\.=%]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9]{2,}$ ]]; then
+  if [[ -z `echo "${LOOK_AHEAD_ADDRESS}" | grep -Poi '^[a-zA-Z0-9\+\-_\.=%]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9]{2,}$'` ]]; then
     echo "${TC_BOLD}${TC_RED}ERROR${TC_NORMAL}: $0: Invalid option for -e flag, needs to be a valid email address."
     exit 2
   fi
