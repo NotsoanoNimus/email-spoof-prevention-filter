@@ -22,11 +22,14 @@ function usage() {
   echo "  name."
   echo -e "CEO-Name: The CEO-Name field should be from FIRST to LAST name.\n"
   echo "OPTIONS:"
+  echo -e "   -e    Match all From headers EXCEPT those with the given email."
   echo -e "   -i    Generate a NON-case-sensitive variant (shortens it).\n"
   echo "EXAMPLES:"
-  echo "    $0 \"John F. Smith\" -c"
+  echo "    $0 \"John F. Smith\" -i -e\"jsmith@example.com\""
   echo "        Will generate a regex for variations of the above name like:"
   echo "        \"Smith, Jon F\" & \"Johnathan Smith\""
+  echo "        This will EXEMPT matching any From headers including the given"
+  echo "        email address, assuming content filters support look-aheads."
   printf "\n"
   exit 1
 }
@@ -42,13 +45,7 @@ ORIG_LAST_NAME=
 LAST_NAME=
 REGEX=
 CASE_INSENSITIVE=
-
-# Quick checks for usage requests, or other failures.
-[[ -z $1 || "$1" =~ ^\-.*$ ]] && usage || NAME="$1"
-[[ -n $2 && ! "$2" =~ ^-.*$ ]] && echo "ERROR: $0: You need to quote the name!" && exit 1
-
-# Quickly save arg1 before the shift below.
-ORIG_NAME="${NAME}"
+LOOK_AHEAD_ADDRESS=
 
 # Set up colors, if they're supported by the current terminal.
 COLORS=$(tput colors 2>/dev/null)
@@ -62,16 +59,33 @@ if [ -n "$COLORS" ]; then
     TC_BOLD=`tput bold 2>/dev/null`
 fi
 
+# Quick checks for usage requests, or other failures.
+[[ -z $1 || "$1" =~ ^\-.*$ ]] && usage || NAME="$1"
+[[ -n $2 && ! "$2" =~ ^\-.*$ ]] \
+  && echo "${TC_BOLD}${TC_RED}ERROR${TC_NORMAL}: $0: You need to quote the name!" && exit 1
+
+# Quickly save arg1 before the shift below.
+ORIG_NAME="${NAME}"
+
 # Roll the "CEO-Name" field off the arguments.
 shift
 
 # Parse arguments and flags. At this time it's pretty minimal.
-while getopts i param; do
+while getopts ie: param; do
   case $param in
     i) CASE_INSENSITIVE="TRUE" ;;
+    e) LOOK_AHEAD_ADDRESS="${OPTARG}" ;;
     *) usage ;;
   esac
 done
+
+#Make sure the look-ahead variable/arg is an email address.
+if [[ -n "${LOOK_AHEAD_ADDRESS}" ]]; then
+  if [[ ! "${LOOK_AHEAD_ADDRESS}" =~ ^[a-zA-Z0-9\+\-_\.=%]+\@[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9]{2,}$ ]]; then
+    echo "${TC_BOLD}${TC_RED}ERROR${TC_NORMAL}: $0: Invalid option for -e flag, needs to be a valid email address."
+    exit 2
+  fi
+fi
 
 # Strip some special characters (like .). Might add to this SED later.
 NAME=$(echo "$NAME" | sed -r 's/\.//g')
@@ -149,7 +163,7 @@ elif [[ "${FIRST_NAME_PARSE}" =~ ^ron(ald|n?(y|ie))? ]]; then
 elif [[ "${FIRST_NAME_PARSE}" =~ ^(miriam|mar(ie|y|iam)) ]]; then
   FIRST_NAME="M(\.|(i|a)riam|y|ie)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^mi(cha?el|key?) ]]; then
-  FIRST_NAME="M(\.|i(key?|ch))?${MIDDLE_NAME}"
+  FIRST_NAME="M(\.|i(key?|cha?el))?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^mat(t?hew)? ]]; then
   FIRST_NAME="M(\.|at(t?hew)?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^ken(n?(y|ie|eth))? ]]; then
@@ -267,11 +281,21 @@ else
     | sed -r 's/^/From\:\\s\*"\?\\s\*\(/g' | sed -r 's/$/\)\\s\*"\?\\s\+\</g')
 fi
 
+# If the look-ahead address is defined (the CEO's real email address) append it.
+#   This regex assumes that the content filtering system of the spam filter supports look-ahead operators.
+if [[ -n "${LOOK_AHEAD_ADDRESS}" ]]; then
+  LOOK_AHEAD_ADDRESS=$(echo "${LOOK_AHEAD_ADDRESS}" | sed -r 's/\./\\\./g' | sed -r 's/\-/\\-/g' | sed -r 's/\+/\\+/g')
+  REGEX="${REGEX}(?!${LOOK_AHEAD_ADDRESS}\>\s*$)"
+fi
+
 
 # Everything is done, output the final result and other information.
 echo "Regex successfully generated for name \"${TC_CYAN}${ORIG_NAME}${TC_NORMAL}\"!"
 echo -e "Please enter this into the content filters section of an ${TC_GREEN}ESG/ESS${TC_NORMAL} for ${TC_YELLOW}headers${TC_NORMAL}.\n"
 echo "${REGEX}"
+[[ -n "${LOOK_AHEAD_ADDRESS}" ]] && \
+echo -e "\n${TC_BOLD}${TC_BLUE}WARNING${TC_NORMAL}: The above regex uses LOOK-AHEAD operators, which ${TC_RED}ARE NOT BARRACUDA-COMPATIBLE${TC_NORMAL}!!! \
+If your spam filtering service doesn't support these operators, this will ${TC_BOLD}invalidate${TC_NORMAL} the regex entirely."
 echo -e "\nFor confidence, test the Regex here: ${TC_RED}https://regoio.herokuapp.com/${TC_NORMAL}"
 echo -e "${TC_BOLD}PLEASE NOTE: THE TESTER ABOVE IS CASE-SENSITIVE!!!${TC_NORMAL}\n"
 echo "Try out some of these examples in the tester above and mutate them as you please:"

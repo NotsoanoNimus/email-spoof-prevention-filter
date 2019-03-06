@@ -26,6 +26,18 @@ From:"Smith, J" <other@fake.address>
 ```
 You get the point...
 
+### The -e Flag
+Also, if your email content filtering supports regex __look-ahead__ operators (Barracuda, for example, does **not** at this time), you can elect to use the "-e" option to provide an email address for matching exemption from this pattern using a _negative lookahead_.
+
+Following the example above, we can say that the filter should match **ALL** "John Smith" senders **UNLESS** the reply-to address is "_jsmith@realdomain.net_":
+```
+[zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "John Y. Smith" -e "jsmith@realdomain.net"
+Regex successfully generated for name "John Y. Smith"!
+Please enter this into the content filters section of an ESG/ESS for headers.
+
+From:\s*"?\s*((J(\.|[Oo0]h?n(a[Tt7]han|a[Tt7]h[Oo0]n|ny|n[IiLl1]{0,2}[Ee3])?)?(\s+Y\.?)?\s+[Ss5]m[IiLl1]{0,2}[Tt7]h)|([Ss5]m[IiLl1]{0,2}[Tt7]h,?\s+J(\.|[Oo0]h?n(a[Tt7]han|a[Tt7]h[Oo0]n|ny|n[IiLl1]{0,2}[Ee3])?)?(\s+Y\.?)?))\s*"?\s+<(?!jsmith@realdomain\.net\>\s*$)
+```
+
 ### Important Note!
 You should **always** ask for the CEO or executive's middle name (or at least initial) to make this more thorough! Entering a name into the script _without a middle name/initial_ will generate a regex that _will NOT match From headers with middle names/initials_!
 
@@ -59,7 +71,7 @@ As you have probably already guessed, using these filters has a catch.
 
 If you have a Barracuda, you're in luck. You can _whitelist the executive's 3rd-party email_ so that everyone is happy, and all is well. Just monitor the whitelist and make sure it isn't abused by someone out there that might know it!
 
-If you don't have a Barracuda, consult with your current product support and see if these regular expressions can support exemptions. That's all I can offer at this time in this regard.
+If you don't have a Barracuda, consult with your current product support and see if you have support for "look-ahead" operators with your content filtering. Then you can use the "-e" option as mentioned above.
 
 ---
 
