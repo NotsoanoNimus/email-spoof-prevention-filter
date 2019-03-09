@@ -3,6 +3,31 @@ This script was inspired by a **sharp increase** in the rate of **Display-Name s
 
 It is designed to digest a name (_usually an executive or authority of sorts_) and spit out an email "**Header-From**" filter for that name. This generated filter will match all email _FROM:_ patters regardless of the reply-to email in the header.
 
+## Usage
+Usage of the script itself is pretty straight-forward:
+```
+USAGE: ./ceo_filter_gen.sh "CEO-Name" [OPTIONS]...
+Generate an ESG/ESS/SA-compliant regular expression for a Display Name
+  in the "From:" header of an email. This regex, by default, will
+  match the name given, as well as typo-squatting variations of the
+  name.
+CEO-Name: The CEO-Name field should be from FIRST to LAST name.
+
+OPTIONS:
+   -e    Match all From headers EXCEPT those with the given emails.
+          Multiple emails can be separated by a single comma.
+   -c    Generate a SpamAssassin CUSTOM RULE that can be applied to
+          an MTA using the service. This includes the Barracuda ESG.
+          PLEASE NOTE: The use of this option requires the -e option,
+          and the custom rule will scan both inbound and outbound, so
+          any email address (including internal/aliases) used by the
+          executive will need to be added with the -e option.
+   -i    Generate a case-insensitive variant. This option is default
+          when using the -c option.
+```
+
+## Examples
+
 Here's a sample output from the script...
 ```
 [zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "John Y. Smith"
@@ -15,7 +40,7 @@ For confidence, test the Regex here: https://regoio.herokuapp.com/
 PLEASE NOTE: THE TESTER ABOVE IS CASE-SENSITIVE!!!
 ```
 
-Seriously. That output will match any case too, in the event that the email filtering system you're using does case-sensitive filtering. Also, notice the _typosquatting_ prevention mechanisms (catching **I** substituted by **L** or **1**, for example).
+The output will match any case too, in the event that the email filtering system you're using is case-sensitive. Also, notice the _typosquatting_ prevention mechanisms (catching **I** substituted by **L** or **1**, for example).
 
 This generated regex will match the name "**John Y. Smith**" in the following header variations (and more):
 ```
@@ -24,7 +49,7 @@ From:    "  Sml7h, Johnath0n "   <notreally@yahoo.net>
 From: J Y 5m1th <somefakeaddress@gmail.com>
 From:"Smith, J" <other@fake.address>
 ```
-You get the point...
+The intent here is to be both flexible to prevent circumvention of the rule, but to also not be too greedy.
 
 ### The -e Flag
 Also, if your email content filtering supports regex __look-ahead__ operators (Barracuda, for example, does **not** at this time), you can elect to use the "-e" option to provide an email address for matching exemption from this pattern using a _negative lookahead_.
@@ -37,11 +62,32 @@ Please enter this into the content filters section of an ESG/ESS for headers.
 
 From:\s*"?\s*((J(\.|[Oo0]h?n(a[Tt7]han|a[Tt7]h[Oo0]n|ny|n[IiLl1]{0,2}[Ee3])?)?(\s+Y\.?)?\s+[Ss5]m[IiLl1]{0,2}[Tt7]h)|([Ss5]m[IiLl1]{0,2}[Tt7]h,?\s+J(\.|[Oo0]h?n(a[Tt7]han|a[Tt7]h[Oo0]n|ny|n[IiLl1]{0,2}[Ee3])?)?(\s+Y\.?)?))\s*"?\s+<(?!jsmith@realdomain\.net\>\s*$)
 ```
+This is the ideal use of this script if your content filtering supports regex look-ahead.
+
+### The -c Flag
+The script also includes an option to output custom rules for _SpamAssassin_ as well, in case you are an email administrator that utilizes open-source software. This solution is also, luckily, Barracuda-ESG-compatible, but has to be added by their support team upon request.
+
+Again, it builds upon the -e flag above but produces a different output:
+```
+[zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "Zachary T. Puhl" -e"zpuhl@barracuda.com,zack.puhl@yahoo.com,zpuhl@yeethop.xyz" -c
+Regex successfully generated for name "Zachary T. Puhl"!
+Please edit the file [REDACTED] on the target Barracuda ESG, or alternatively the local.cf file on the MTA using SpamAssassin, and paste these lines at the bottom:
+
+header __BSF_SP_EXEC_FROM From =~ /((Z(\.|ac([kh](([e3]|a)ry)?)?)?(\s+[t7]\.?)?\s+Puh[il1])|(Puh[il1],?\s+Z(\.|ac([kh](([e3]|a)ry)?)?)?(\s+[t7]\.?)?))/i
+header __BSF_SP_EXEC_EXEMPT From:addr =~ /(zpuhl\@barracuda\.com|zack\.puhl\@yahoo\.com|zpuhl\@yeethop\.xyz)/i
+meta BSF_SP_EXEC (__BSF_SP_EXEC_FROM && !__BSF_SP_EXEC_EXEMPT)
+describe BSF_SP_EXEC Spoofed Executive
+score BSF_SP_EXEC 10.00
+```
+
+_Note: The "BSF_SP_EXEC" in the custom rule stands for "Barracuda Spam Firewall -> Spoof Protection -> Executive" and is entirely my own naming convention, not affiliated with the Barracuda engineering/development annotation of custom rules. This name doesn't really matter and can be changed next to the meta keyword where it's defined._
 
 ### Important Note!
 You should **always** ask for the CEO or executive's middle name (or at least initial) to make this more thorough! Entering a name into the script _without a middle name/initial_ will generate a regex that _will NOT match From headers with middle names/initials_!
 
 ---
+
+# Auxiliary Information & Training
 
 ## What is Display-Name spoofing?
 When spear-phishing attacks appear to come from an executive at a business, going to another business member with some sort of financial corporate account access, claiming to need a favor or demanding payment for a late invoice.
@@ -105,5 +151,6 @@ Also, this form of protection provides an umbrella for even those with the lowes
 Things to still check off the list for this project will be listed here, as well as any bugs to fix.
 
 + [X] **Expand** the predefined list of names that have variations (_like Zack, Joe, & Mary_).
-+ [ ] Improve **string scanning** for the built regex to lessen the impact of _potential script errors_.
++ [X] Improve **string scanning** for the built regex to lessen the impact of _potential script errors_.
 + [X] Finish this README document.
++ [ ] Build a JavaScript-based web form to do all of this with a clean GUI.

@@ -16,20 +16,29 @@
 # Display the usage information of the script.
 function usage() {
   echo "USAGE: $0 \"CEO-Name\" [OPTIONS]..."
-  echo "Generate an ESG/ESS-compliant regular expression for a Display Name"
+  echo "Generate an ESG/ESS/SA-compliant regular expression for a Display Name"
   echo "  in the \"From:\" header of an email. This regex, by default, will"
   echo "  match the name given, as well as typo-squatting variations of the"
   echo "  name."
   echo -e "CEO-Name: The CEO-Name field should be from FIRST to LAST name.\n"
   echo "OPTIONS:"
-  echo -e "   -e    Match all From headers EXCEPT those with the given email."
-  echo -e "   -i    Generate a NON-case-sensitive variant (shortens it).\n"
+  echo -e "   -e    Match all From headers EXCEPT those with the given emails."
+  echo -e "          Multiple emails can be separated by a single comma."
+  echo -e "   -c    Generate a SpamAssassin CUSTOM RULE that can be applied to"
+  echo -e "          an MTA using the service. This includes the Barracuda ESG."
+  echo -e "          PLEASE NOTE: The use of this option requires the -e option,"
+  echo -e "          and the custom rule will scan both inbound and outbound, so"
+  echo -e "          any email address (including internal/aliases) used by the"
+  echo -e "          executive will need to be added with the -e option."
+  echo -e "   -i    Generate a case-insensitive variant. This option is default"
+  echo -e "          when using the -c option.\n"
   echo "EXAMPLES:"
   echo "    $0 \"John F. Smith\" -i -e\"jsmith@example.com\""
   echo "        Will generate a regex for variations of the above name like:"
   echo "        \"Smith, Jon F\" & \"Johnathan Smith\""
   echo "        This will EXEMPT matching any From headers including the given"
   echo "        email address, assuming content filters support look-aheads."
+  echo "SEE MORE examples at https://github.com/ZacharyPuhl/email-spoof-prevention-filter/"
   printf "\n"
   exit 1
 }
@@ -45,7 +54,10 @@ ORIG_LAST_NAME=
 LAST_NAME=
 REGEX=
 CASE_INSENSITIVE=
+ORIG_LOOK_AHEAD_ADDRESS=
 LOOK_AHEAD_ADDRESS=
+CUSTOM_RULE_GEN=
+CUSTOM_RULE_FILE="[REDACTED]"
 
 # Set up colors, if they're supported by the current terminal.
 COLORS=$(tput colors 2>/dev/null)
@@ -71,26 +83,32 @@ ORIG_NAME="${NAME}"
 shift
 
 # Parse arguments and flags. At this time it's pretty minimal.
-while getopts ie: param; do
+while getopts ice: param; do
   case $param in
     i) CASE_INSENSITIVE="TRUE" ;;
     e) LOOK_AHEAD_ADDRESS="${OPTARG}" ;;
+    c) if [ -z "${LOOK_AHEAD_ADDRESS}" ]; then
+         echo "${TC_BOLD}${TC_RED}ERROR${TC_NORMAL}: $0: To generate a Custom Rule (-c option), you need to specify email address(es) with the -e option!"; exit 2
+       else CUSTOM_RULE_GEN="TRUE"; fi ;;
     *) usage ;;
   esac
 done
 
-#Make sure the look-ahead variable/arg is an email address.
+# Make sure the look-ahead variable/arg is an email address.
 if [[ -n "${LOOK_AHEAD_ADDRESS}" ]]; then
   # The below test is causing some issues on different Linux distros, so I'm going to enforce a Perl regex.
   #if [[ ! "${LOOK_AHEAD_ADDRESS}" =~ ^[a-zA-Z0-9\+\-_\.=%]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9]{2,}$ ]]; then
-  if [[ -z `echo "${LOOK_AHEAD_ADDRESS}" | grep -Poi '^[a-zA-Z0-9\+\-_\.=%]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9]{2,}$'` ]]; then
-    echo "${TC_BOLD}${TC_RED}ERROR${TC_NORMAL}: $0: Invalid option for -e flag, needs to be a valid email address."
+  if [[ -z `echo "${LOOK_AHEAD_ADDRESS}" | grep -Poi '^[a-zA-Z0-9\+\-_\.=%]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9]{2,}(,[a-zA-Z0-9\+\-_\.=%]+@[a-zA-Z0-9\.\-]+\.[a-zA-Z0-9]{2,})*$'` ]]; then
+    echo "${TC_BOLD}${TC_RED}ERROR${TC_NORMAL}: $0: Invalid option for -e flag, needs to be a valid email address, or multiple addresses separated by a single comma (no spaces)."
     exit 2
   fi
 fi
 
-# Strip some special characters (like .). Might add to this SED later.
-NAME=$(echo "$NAME" | sed -r 's/\.//g')
+# Save the original look-ahead-address argument.
+ORIG_LOOK_AHEAD_ADDRESS="${LOOK_AHEAD_ADDRESS}"
+
+# Strip some special characters (like . and /). Might add to this SED later.
+NAME=$(echo "$NAME" | sed -r 's/[\.\/]//g')
 
 # First Name will go all the way up to the last word in the name. (Initally includes the middle name)
 FIRST_NAME=$(echo "$NAME" | sed -r 's/\s+[a-zA-Z\-\.]+\s*$//g')
@@ -134,12 +152,12 @@ FIRST_NAME_PARSE=$(echo "${FIRST_NAME}" | tr '[:upper:]' '[:lower:]')
 #     because it will later expand to that substitution in the final steps.
 #     So, regexes are intentionally a bit sloppy here (;
 # !!!!!!!!!!!!!!!!!!!!!
-if [[ "${FIRST_NAME_PARSE}" =~ ^joh?n(athan|athon|ny|nie)? ]]; then
+if [[ "${FIRST_NAME_PARSE}" =~ ^joh?n(ath(a|o)n|ny|nie)? ]]; then
   FIRST_NAME="J(\.|oh?n(athan|athon|ny|nie)?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^dan(n(y|ie)|iel)? ]]; then
   FIRST_NAME="D(\.|an(n(y|ie)|iel)?)?${MIDDLE_NAME}"
-elif [[ "${FIRST_NAME_PARSE}" =~ ^zac(k|[kh][ae]ry)? ]]; then
-  FIRST_NAME="Z(\.|ac(k|[kh](ery|ary))?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^zac([kh]([ae]ry)?)? ]]; then
+  FIRST_NAME="Z(\.|ac([kh]((e|a)ry)?)?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^(bob(b?(y|ie))?|(rob(ert|b?(y|ie))?)) ]]; then
   FIRST_NAME="(((B|R)\.?)|Bob(b?(y|ie))?|Rob(ert|b?(y|ie))?)${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^th?om(as|m?(y|ie))? ]]; then
@@ -160,6 +178,18 @@ elif [[ "${FIRST_NAME_PARSE}" =~ ^greg(ory)? ]]; then
   FIRST_NAME="G(\.|reg(ory)?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^don(ald|n?(y|ie))? ]]; then
   FIRST_NAME="D(\.|on(ald|n?(y|ie))?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^ch?ris(topher)? ]]; then
+  FIRST_NAME="C(\.|h?ris(topher)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^j(am(es|e?y|ie)|im(m(y|ie))?) ]]; then
+  FIRST_NAME="J(\.|am(es|e?y|ie)|im(m(y|ie))?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^ch(arl(ie|ee|es)|uck(y|ie)?) ]]; then
+  FIRST_NAME="C(\.|h(arl(ie|ee|es)|uck(y|ie)?))?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^jenn?(y|ifer|ie)? ]]; then
+  FIRST_NAME="J(\.|enn?(y|ie|ifer)?)?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^su(e|sie|san) ]]; then
+  FIRST_NAME="S(\.|u(e|sie|san))?${MIDDLE_NAME}"
+elif [[ "${FIRST_NAME_PARSE}" =~ ^deb(b(y|ie)?|ra|orah?)? ]]; then
+  FIRST_NAME="D(\.|eb(b(y|ie)?|ra|orah?)?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^ron(ald|n?(y|ie))? ]]; then
   FIRST_NAME="R(\.|on(ald|n?(y|ie))?)?${MIDDLE_NAME}"
 elif [[ "${FIRST_NAME_PARSE}" =~ ^(miriam|mar(ie|y|iam)) ]]; then
@@ -263,15 +293,14 @@ done
 # 6: Replace B/b with the typosquatting characters.
 # 7: Replace ' ' (spaces between the name) with '\s+' (one + spaces).
 # 8: Finish the parenthesis, the double-quotes, and add the portion to match the From header.
-if [[ -z "$CASE_INSENSITIVE" ]]; then
+if [[ -z "$CASE_INSENSITIVE" && -z "$CUSTOM_RULE_GEN" ]]; then
   REGEX=$(printf "${NAME}" | sed -r 's/[IiLl]+/\[IiLl1\]/g' \
     | sed -r 's/[Ee]+/\[Ee3\]/g' \
     | sed -r 's/[Ss]+/\[Ss5\]/g' \
     | sed -r 's/[Tt]+/\[Tt7\]/g' \
     | sed -r 's/[Oo]+/\[Oo0\]/g' \
     | sed -r 's/[Bb]+/\[Bb8\]/g' \
-    | sed -r 's/\s+/\\s\+/g' \
-    | sed -r 's/^/From\:\\s\*"\?\\s\*\(/g' | sed -r 's/$/\)\\s\*"\?\\s\+\</g')
+    | sed -r 's/\s+/\\s\+/g')
 else
   REGEX=$(printf "${NAME}" | sed -r 's/[IiLl]+/\[il1\]/g' \
     | sed -r 's/[Ee]+/\[e3\]/g' \
@@ -279,29 +308,51 @@ else
     | sed -r 's/[Tt]+/\[t7\]/g' \
     | sed -r 's/[Oo]+/\[o0\]/g' \
     | sed -r 's/[Bb]+/\[b8\]/g' \
-    | sed -r 's/\s+/\\s\+/g' \
-    | sed -r 's/^/From\:\\s\*"\?\\s\*\(/g' | sed -r 's/$/\)\\s\*"\?\\s\+\</g')
+    | sed -r 's/\s+/\\s\+/g')
+fi
+
+# If the output format of the regex is just the name (-c option) add parenthesis, otherwise add the whole thing.
+if [ -n "${CUSTOM_RULE_GEN}" ]; then
+  REGEX="(${REGEX})"
+else
+  REGEX="From:\\s*\"?\\s*(${REGEX})\\s*\"?\\s+\<"
 fi
 
 # If the look-ahead address is defined (the CEO's real email address) append it.
 #   This regex assumes that the content filtering system of the spam filter supports look-ahead operators.
 if [[ -n "${LOOK_AHEAD_ADDRESS}" ]]; then
-  LOOK_AHEAD_ADDRESS=$(echo "${LOOK_AHEAD_ADDRESS}" | sed -r 's/\./\\\./g' | sed -r 's/\-/\\-/g' | sed -r 's/\+/\\+/g')
-  REGEX="${REGEX}(?!${LOOK_AHEAD_ADDRESS}\>\s*$)"
+  LOOK_AHEAD_ADDRESS=$(echo "${LOOK_AHEAD_ADDRESS}" | sed -r 's/\./\\\./g' | sed -r 's/\-/\\-/g' \
+    | sed -r 's/\+/\\+/g' | sed -r 's/,+/\|/g' | sed 's/\@/\\@/g')
+  REGEX="${REGEX}(?!(${LOOK_AHEAD_ADDRESS})\>\s*$)"
 fi
 
 
 # Everything is done, output the final result and other information.
 echo "Regex successfully generated for name \"${TC_CYAN}${ORIG_NAME}${TC_NORMAL}\"!"
-echo -e "Please enter this into the content filters section of an ${TC_GREEN}ESG/ESS${TC_NORMAL} for ${TC_YELLOW}headers${TC_NORMAL}.\n"
-echo "${REGEX}"
-[[ -n "${LOOK_AHEAD_ADDRESS}" ]] && \
-echo -e "\n${TC_BOLD}${TC_BLUE}WARNING${TC_NORMAL}: The above regex uses LOOK-AHEAD operators, which ${TC_RED}ARE NOT BARRACUDA-COMPATIBLE${TC_NORMAL}!!! \
-If your spam filtering service doesn't support these operators, this will ${TC_BOLD}invalidate${TC_NORMAL} the regex entirely."
-echo -e "\nFor confidence, test the Regex here: ${TC_RED}https://regoio.herokuapp.com/${TC_NORMAL}"
-echo -e "${TC_BOLD}PLEASE NOTE: THE TESTER ABOVE IS CASE-SENSITIVE!!!${TC_NORMAL}\n"
-echo "Try out some of these examples in the tester above and mutate them as you please:"
-echo "    From: `echo ${ORIG_LAST_NAME} | sed -r 's/[bB]/8/g'`, ${ORIG_FIRST_NAME} ${ORIG_MIDDLE_NAME} <fake@fake.com>"
-echo "    From: \"`echo ${ORIG_FIRST_NAME} | sed 's/[oO]/0/g' | sed 's/[iIlL]/1/g'` ${ORIG_LAST_NAME}  \" <test@notexist.net>"
-echo "    From:\"${ORIG_LAST_NAME} ${ORIG_FIRST_NAME} <${ORIG_FIRST_NAME:0:1}${ORIG_LAST_NAME}@legit.domain.com>\" <spammer@badguys.com>"
+if [ -z "$CUSTOM_RULE_GEN" ]; then
+  echo -e "Please enter this into the content filters section of an ${TC_GREEN}ESG/ESS${TC_NORMAL} for ${TC_YELLOW}headers${TC_NORMAL}.\n"
+  echo "${REGEX}"
+  [[ -n "${LOOK_AHEAD_ADDRESS}" ]] && \
+  echo -e "\n${TC_BOLD}${TC_BLUE}WARNING${TC_NORMAL}: The above regex uses LOOK-AHEAD operators, which ${TC_RED}ARE NOT BARRACUDA-COMPATIBLE${TC_NORMAL}!!! \
+If your spam filtering service doesn't support these operators, this will ${TC_BOLD}invalidate${TC_NORMAL} the regex entirely. To remove the look-ahead operator from the regex, please re-run the script WITHOUT the -e parameter."
+  echo -e "\nFor confidence, test the Regex here: ${TC_RED}https://regoio.herokuapp.com/${TC_NORMAL}"
+  echo -e "${TC_BOLD}PLEASE NOTE: THE TESTER ABOVE IS CASE-SENSITIVE\
+`[ -n "${LOOK_AHEAD_ADDRESS}" ] && echo " AND DOES NOT SUPPORT LOOK-AHEADS"`!!!${TC_NORMAL}\n"
+  echo "Try out some of these examples in the tester above and mutate them as you please:"
+  echo "    From: `echo ${ORIG_LAST_NAME} | sed -r 's/[bB]/8/g'`, ${ORIG_FIRST_NAME} ${ORIG_MIDDLE_NAME} <fake@fake.com>"
+  echo "    From: \"`echo ${ORIG_FIRST_NAME} | sed 's/[oO]/0/g' | sed 's/[iIlL]/1/g'` ${ORIG_LAST_NAME}  \" <test@notexist.net>"
+  echo "    From:\"${ORIG_LAST_NAME} ${ORIG_FIRST_NAME} <${ORIG_FIRST_NAME:0:1}${ORIG_LAST_NAME}@legit.domain.com>\" <spammer@badguys.com>"
+  [ -n "${LOOK_AHEAD_ADDRESS}" ] && \
+    echo "    From: \"${ORIG_FIRST_NAME} ${ORIG_LAST_NAME}\" <`echo "${ORIG_LOOK_AHEAD_ADDRESS}" | cut -d',' -f1`>"
+else
+  echo -e "Please edit the file ${TC_RED}${CUSTOM_RULE_FILE}${TC_NORMAL} on the target Barracuda ESG, \
+or alternatively the ${TC_RED}local.cf${TC_NORMAL} file on the MTA using SpamAssassin, and paste these lines at the bottom:\n"
+  echo "${TC_BLUE}${TC_BOLD}header __BSF_SP_EXEC_FROM From =~ /`echo "${REGEX}" | sed -r 's/\(\?\!.*$//'`/i"
+  echo "header __BSF_SP_EXEC_EXEMPT From:addr =~ /(${LOOK_AHEAD_ADDRESS})/i"
+  echo "meta BSF_SP_EXEC (__BSF_SP_EXEC_FROM && !__BSF_SP_EXEC_EXEMPT)"
+  echo "describe BSF_SP_EXEC Spoofed Executive"
+  echo "score BSF_SP_EXEC 10.00${TC_NORMAL}"
+  echo
+fi
+
 exit 0
