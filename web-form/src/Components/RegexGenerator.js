@@ -31,7 +31,7 @@ export default class RegexGenerator extends Component {
         } else if(firstName.match(/^zac([kh]([ae]ry)?)?$/i)) {
             firstName = "Z(\\.|ac([kh]((e|a)ry)?)?)?"+middleName;
         } else if(firstName.match(/^(bob(b?(y|ie))?|(rob(ert|b?(y|ie))?))$/i)) {
-            firstName = "(((B|R)\.?)|Bob(b?(y|ie))?|Rob(ert|b?(y|ie))?)"+middleName;
+            firstName = "(((B|R)\\.?)|Bob(b?(y|ie))?|Rob(ert|b?(y|ie))?)"+middleName;
         } else if(firstName.match(/^th?om(as|m?(y|ie))?$/i)) {
             firstName = "T(\\.|h?om(as|m?(y|ie))?)?"+middleName;
         } else if(firstName.match(/^([bw]ill(iam|y|ie)?)$/i)) {
