@@ -57,6 +57,7 @@ export default class App extends Component {
             givenName : "", givenNameError : "",
             exempts : "", exemptsError : "", exemptsInput : ""
         });
+        document.getElementById('case-checkbox').disabled = false;
     }
 
     handleFormChange(event) {

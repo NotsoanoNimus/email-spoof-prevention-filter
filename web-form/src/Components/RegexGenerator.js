@@ -9,7 +9,7 @@ export default class RegexGenerator extends Component {
 
     parseInput(input) {
         if(!input) { return ""; }
-        else { input = input.toString().replace(/[\.\-\']/gi, ""); }
+        else { input = input.toString().replace(/[.']/gi, ""); }
 
         // Capture certain pieces of the name
         let firstName  = input.match(/^\s*[a-z\'-.]+\s+/i).toString().trim();
