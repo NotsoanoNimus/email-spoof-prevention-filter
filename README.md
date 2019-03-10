@@ -153,4 +153,5 @@ Things to still check off the list for this project will be listed here, as well
 + [X] **Expand** the predefined list of names that have variations (_like Zack, Joe, & Mary_).
 + [X] Improve **string scanning** for the built regex to lessen the impact of _potential script errors_.
 + [X] Finish this README document.
-+ [ ] Build a JavaScript-based web form to do all of this with a clean GUI.
++ [X] Build a JavaScript-based web form to do all of this with a clean GUI.
++ [ ] Add support for unicode typosquatting, or at least an expanded ASCII version.

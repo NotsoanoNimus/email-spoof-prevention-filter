@@ -118,7 +118,7 @@ export default class App extends Component {
                     {"Test out your regexes "}
                     <a href="https://www.regexr.com/" rel="noopener noreferrer" target="_blank">{"here"}</a>{"."}
                 </div>
-                <div id="help-popup">
+                <div id="help-popup" onClick={()=>{document.getElementById('help-popup').style.display = 'none';}}>
                     <div id="help-button" onClick={()=>{document.getElementById('help-popup').style.display = 'none';}}>{"X"}</div>
                     <div id="help-popup-container" className="form-container">
                         <h2>{"Applying Content Filters"}</h2>
@@ -132,8 +132,8 @@ export default class App extends Component {
                         </p>
                         <p>
                             {"NOTE: Non-Spam-Assassin content filters with Exempt Email Addresses included "}<strong>{"CANNOT"}
-                            </strong>{" be used with a Barracuda ESG/ESS or other content filtering that doesn't support regex"}
-                            {"look-ahead operators ((?!) and (?=))."}
+                            </strong>{" be used with a Barracuda ESG/ESS or other content filtering that doesn't support regex "}
+                            {"look-ahead operators (such as: (?!) and (?=))."}
                         </p>
                         <h2>{"SpamAssassin Rules"}</h2>
                         <hr />
