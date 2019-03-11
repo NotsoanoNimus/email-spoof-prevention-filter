@@ -165,7 +165,9 @@ export default class RegexGenerator extends Component {
         name = name.toString().replace(/\s+/gi,"\\s+");
 
         if(this.props.exempt && !this.props.spamassassin) {
-            name = `From:\\s*"?\\s*"+${name}+"\\s*"?\\s+<(?!(${this.parseExempts(this.props.exempt)})>\\s*$)`;
+            name = `From:\\s*"?\\s*(${name})\\s*"?\\s+<(?!(${this.parseExempts(this.props.exempt)})>\\s*$)`;
+        } else if(!this.props.exempt && !this.props.spamassassin) {
+            name = `From:\\s*"?\\s*(${name})\\s*"?\\s+<`;
         }
 
         return name;
