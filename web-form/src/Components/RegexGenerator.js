@@ -103,7 +103,7 @@ export default class RegexGenerator extends Component {
 
         // Build a version of the regex that will catch the name in the formal and informal pattern.
         //   So, match both: "John H. Smith" and "Smith, John H." formats.
-        let name = "("+firstName+" "+lastName+")|("+lastName+" "+firstName+")";
+        let name = "("+firstName+" "+lastName+")|("+lastName+",? "+firstName+")";
 
         /*
          * Scan the string now and condense similar chars into a regex quantity operator.
