@@ -86,7 +86,7 @@ export default class App extends Component {
         return (
             <div className="App">
                 <div id="header-container" className="form-container">
-                    <img src="/resources/BarracudaLogo.svg" id="cuda-logo" alt="" /><br />
+                    <img src="resources/BarracudaLogo.svg" id="cuda-logo" alt="" /><br />
                     <div id="header-text">{`Spoof Prevention Assistant`}</div>
                 </div>
                 <div id="textbox-container" className="form-container">
