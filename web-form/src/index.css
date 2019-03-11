@@ -13,6 +13,10 @@ code {
 
 label { cursor:pointer; }
 
+input[type=checkbox] {
+    cursor: pointer;
+}
+
 input[type=button] {
     border-radius: 10px;
     border: 0;

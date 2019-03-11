@@ -8,6 +8,7 @@ export default class App extends Component {
         this.state = {
             caseInsensitive : false,
             spamassassin : false,
+            firstnameExpansion : true,
             input : "",
             givenName : "", givenNameError : "",
             exempts : "", exemptsError : "", exemptsInput : ""
@@ -57,6 +58,7 @@ export default class App extends Component {
         this.setState({
             caseInsensitive : false,
             spamassassin : false,
+            firstnameExpansion : true,
             input : "",
             givenName : "", givenNameError : "",
             exempts : "", exemptsError : "", exemptsInput : ""
@@ -97,13 +99,21 @@ export default class App extends Component {
                      onChange={(e)=>{this.updateExempts(e);}} className="form-entry-text" />
                 </div>
                 <div id="checkbox-container" className="form-container">
-                    <label>Case Insensitive:&nbsp;
+                    <label title="Get rid of mixed-case characters between the square bracket selectors ([]).">
+                    Case Insensitive:&nbsp;
                         <input type="checkbox" name="caseInsensitive" id="case-checkbox"
                          checked={this.state.caseInsensitive} onChange={(e)=>{this.handleFormChange(e);}} />
                     </label>
-                    <label style={{float:'right'}}>Spam-Assassin:&nbsp;
+                    <label style={{float:'right'}} title="Create a SpamAssassin meta-rule that supports exemption by email.">
+                    Spam-Assassin:&nbsp;
                         <input type="checkbox" name="spamassassin"
                         checked={this.state.spamassassin} onChange={(e)=>{this.handleFormChange(e);}} />
+                    </label>
+                    <br />
+                    <label title="Expand variations of common first names, for example Bob into Robert, Bobbie, etc.">
+                    Expand First-Name:&nbsp;
+                        <input type="checkbox" name="firstnameExpansion"
+                         checked={this.state.firstnameExpansion} onChange={(e)=>{this.handleFormChange(e);}} />
                     </label>
                 </div>
                 <div className="form-container" style={{'text-align':'center'}}>
@@ -111,7 +121,11 @@ export default class App extends Component {
                 </div>
                 <div className="form-container" id="results-container">
                     <RegexGenerator text={this.state.givenName} exempt={this.state.exempts}
-                     caseInsensitive={this.state.caseInsensitive} spamassassin={this.state.spamassassin} />
+                     caseInsensitive={this.state.caseInsensitive} spamassassin={this.state.spamassassin}
+                     expand={this.state.firstnameExpansion} />
+                </div>
+                <div className="form-container" style={{'text-align':'center','font-size':'10px','margin-bottom':'10px'}}>
+                    {"Regex too long? Use the checkbox options to constrain it. Hover over each for more info."}
                 </div>
                 <div className="error-section form-container">
                     <i>{`Input Errors (if any)`}</i>{` : `}

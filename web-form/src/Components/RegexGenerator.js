@@ -26,73 +26,79 @@ export default class RegexGenerator extends Component {
             } else { middleName = "( "+middleName.substring(0,1)+"\\.?)?"; }
         }
 
-        // Iterate through well-known first-names with various permutations.
-        if(firstName.match(/^joh?n(ath(a|o)n|ny|nie)?$/i)) {
-            firstName = "J(\\.|oh?n(athan|athon|ny|nie)?)?"+middleName;
-        } else if(firstName.match(/^dan(n(y|ie)|iel)?$/i)) {
-            firstName = "D(\\.|an(n(y|ie)|iel)?)?"+middleName;
-        } else if(firstName.match(/^zac([kh]([ae]ry)?)?$/i)) {
-            firstName = "Z(\\.|ac([kh]((e|a)ry)?)?)?"+middleName;
-        } else if(firstName.match(/^(bob(b?(y|ie))?|(rob(ert|b?(y|ie))?))$/i)) {
-            firstName = "(((B|R)\\.?)|Bob(b?(y|ie))?|Rob(ert|b?(y|ie))?)"+middleName;
-        } else if(firstName.match(/^th?om(as|m?(y|ie))?$/i)) {
-            firstName = "T(\\.|h?om(as|m?(y|ie))?)?"+middleName;
-        } else if(firstName.match(/^([bw]ill(iam|y|ie)?)$/i)) {
-            firstName = "(B|W)(\\.|ill(iam|y|ie)?)?"+middleName;
-        } else if(firstName.match(/^al(ice|lison|l?ie)$/i)) {
-            firstName = "A(\\.|l(ice|lison|l?ie))?"+middleName;
-        } else if(firstName.match(/^e?li(za(beth)?|sa|zz?(y|ie))$/i)) {
-            firstName = "E?li(za(beth)?|sa|zz?(y|ie)?)"+middleName;
-        } else if(firstName.match(/^ste(v|ph)en?$/i)) {
-            firstName = "S(\\.|te(v|ph)en?)?"+middleName;
-        } else if(firstName.match(/^s(hawn|ean)$/i)) {
-            firstName = "S(\\.|hawn|ean)?"+middleName;
-        } else if(firstName.match(/^dav(e|id)$/i)) {
-            firstName = "D(\\.|av(e|id))?"+middleName;
-        } else if(firstName.match(/^greg(ory)?$/i)) {
-            firstName = "G(\\.|reg(ory)?)?"+middleName;
-        } else if(firstName.match(/^don(ald|n?(y|ie))?$/i)) {
-            firstName = "D(\\.|on(ald|n?(y|ie))?)?"+middleName;
-        } else if(firstName.match(/^ch?ris(topher)?$/i)) {
-            firstName = "C(\\.|h?ris(topher)?)?"+middleName;
-        } else if(firstName.match(/^j(am(es|e?y|ie)|im(m(y|ie))?)$/i)) {
-            firstName = "J(\\.|am(es|e?y|ie)|im(m(y|ie))?)?"+middleName;
-        } else if(firstName.match(/^ch(arl(ie|ee|es)|uck(y|ie)?)$/i)) {
-            firstName = "C(\\.|h(arl(ie|ee|es)|uck(y|ie)?))?"+middleName;
-        } else if(firstName.match(/^jenn?(y|ifer|ie)?$/i)) {
-            firstName = "J(\\.|enn?(y|ie|ifer)?)?"+middleName;
-        } else if(firstName.match(/^su(e|sie|san)$/i)) {
-            firstName = "S(\\.|u(e|sie|san))?"+middleName;
-        } else if(firstName.match(/^deb(b(y|ie)?|ra|orah?)?$/i)) {
-            firstName = "D(\\.|eb(b(y|ie)?|ra|orah?)?)?"+middleName;
-        } else if(firstName.match(/^ron(ald|n?(y|ie))?$/i)) {
-            firstName = "R(\\.|on(ald|n?(y|ie))?)?"+middleName;
-        } else if(firstName.match(/^(miriam|mar(ie|y|iam))$/i)) {
-            firstName = "M(\\.|(i|a)riam|y|ie)?"+middleName;
-        } else if(firstName.match(/^mi(cha?el|key?)$/i)) {
-            firstName = "M(\\.|i(key?|cha?el))?"+middleName;
-        } else if(firstName.match(/^mat(t?hew)?$/i)) {
-            firstName = "M(\\.|at(t?hew)?)?"+middleName;
-        } else if(firstName.match(/^ken(n?(y|ie|eth))?$/i)) {
-            firstName = "K(\\.|en(n?(y|ie|eth))?)?"+middleName;
-        } else if(firstName.match(/^ric[hk]?(ardo?|ie)?$/i)) {
-            firstName = "R(\\.|ic[hk]?(ardo?|ie)?)?"+middleName;
-        } else if(firstName.match(/^m(oe?|(u|o)hamm?(a|e|u|i)(d|t))$/i)) {
-            firstName = "M(\\.|oe?|(u|o)hamm?(a|u|e|i)(d|t))?"+middleName;
-        } else if(firstName.match(/^jo(s?e(y|ph)?)?$/i)) {
-            firstName = "J(\\.|o(s?e(y|ph)?)?)?"+middleName;
-        } else if(firstName.match(/^sam(uel|m?(ie|y)|antha)?$/i)) {
-            // This one might be dangerous as a unisex name. If "Samuel Smith" is intended to be
-            //  blocked, this might also block "Samantha Smith". Leaving for now.
-            firstName = "S(\\.|am(uel|m?(ie|y)|antha)?)?"+middleName;
-        } else if(firstName.match(/^jess((e|i)ca|y|ie)?$/i)) {
-            firstName = "J(\\.|ess((e|i)ca|y|ie)?)?"+middleName;
-        } else if(firstName.match(/^(an)?th?o(ine|n(ie|y))$/i)) {
-            firstName = "(An|T)(\\.|h?o(ine|n(ie|y)))?"+middleName;
-        } else if(firstName.match(/^and(y|ie|rew)$/i)) {
-            firstName = "A(\\.|nd(y|ie|rew))?"+middleName;
-        } else if(firstName.match(/^br(i|e)e?(ann?a)?$/i)) {
-            firstName = "B(\\.|r(i|e)e?(ann?a)?)?"+middleName;
+        if(this.props.expand) {
+            // Iterate through well-known first-names with various permutations.
+            if(firstName.match(/^joh?n(ath(a|o)n|ny|nie)?$/i)) {
+                firstName = "J(\\.|oh?n(athan|athon|ny|nie)?)?"+middleName;
+            } else if(firstName.match(/^dan(n(y|ie)|iel)?$/i)) {
+                firstName = "D(\\.|an(n(y|ie)|iel)?)?"+middleName;
+            } else if(firstName.match(/^zac([kh]([ae]ry)?)?$/i)) {
+                firstName = "Z(\\.|ac([kh]((e|a)ry)?)?)?"+middleName;
+            } else if(firstName.match(/^(bob(b?(y|ie))?|(rob(ert|b?(y|ie))?))$/i)) {
+                firstName = "(((B|R)\\.?)|Bob(b?(y|ie))?|Rob(ert|b?(y|ie))?)"+middleName;
+            } else if(firstName.match(/^th?om(as|m?(y|ie))?$/i)) {
+                firstName = "T(\\.|h?om(as|m?(y|ie))?)?"+middleName;
+            } else if(firstName.match(/^([bw]ill(iam|y|ie)?)$/i)) {
+                firstName = "(B|W)(\\.|ill(iam|y|ie)?)?"+middleName;
+            } else if(firstName.match(/^al(ice|lison|l?ie)$/i)) {
+                firstName = "A(\\.|l(ice|lison|l?ie))?"+middleName;
+            } else if(firstName.match(/^e?li(za(beth)?|sa|zz?(y|ie))$/i)) {
+                firstName = "E?li(za(beth)?|sa|zz?(y|ie)?)"+middleName;
+            } else if(firstName.match(/^ste(v|ph)en?$/i)) {
+                firstName = "S(\\.|te(v|ph)en?)?"+middleName;
+            } else if(firstName.match(/^s(hawn|ean)$/i)) {
+                firstName = "S(\\.|hawn|ean)?"+middleName;
+            } else if(firstName.match(/^dav(e|id)$/i)) {
+                firstName = "D(\\.|av(e|id))?"+middleName;
+            } else if(firstName.match(/^greg(ory)?$/i)) {
+                firstName = "G(\\.|reg(ory)?)?"+middleName;
+            } else if(firstName.match(/^don(ald|n?(y|ie))?$/i)) {
+                firstName = "D(\\.|on(ald|n?(y|ie))?)?"+middleName;
+            } else if(firstName.match(/^ch?ris(topher)?$/i)) {
+                firstName = "C(\\.|h?ris(topher)?)?"+middleName;
+            } else if(firstName.match(/^j(am(es|e?y|ie)|im(m(y|ie))?)$/i)) {
+                firstName = "J(\\.|am(es|e?y|ie)|im(m(y|ie))?)?"+middleName;
+            } else if(firstName.match(/^ch(arl(ie|ee|es)|uck(y|ie)?)$/i)) {
+                firstName = "C(\\.|h(arl(ie|ee|es)|uck(y|ie)?))?"+middleName;
+            } else if(firstName.match(/^jenn?(y|ifer|ie)?$/i)) {
+                firstName = "J(\\.|enn?(y|ie|ifer)?)?"+middleName;
+            } else if(firstName.match(/^su(e|sie|san)$/i)) {
+                firstName = "S(\\.|u(e|sie|san))?"+middleName;
+            } else if(firstName.match(/^deb(b(y|ie)?|ra|orah?)?$/i)) {
+                firstName = "D(\\.|eb(b(y|ie)?|ra|orah?)?)?"+middleName;
+            } else if(firstName.match(/^ron(ald|n?(y|ie))?$/i)) {
+                firstName = "R(\\.|on(ald|n?(y|ie))?)?"+middleName;
+            } else if(firstName.match(/^(miriam|mar(ie|y|iam))$/i)) {
+                firstName = "M(\\.|(i|a)riam|y|ie)?"+middleName;
+            } else if(firstName.match(/^mi(cha?el|key?)$/i)) {
+                firstName = "M(\\.|i(key?|cha?el))?"+middleName;
+            } else if(firstName.match(/^mat(t?hew)?$/i)) {
+                firstName = "M(\\.|at(t?hew)?)?"+middleName;
+            } else if(firstName.match(/^ken(n?(y|ie|eth))?$/i)) {
+                firstName = "K(\\.|en(n?(y|ie|eth))?)?"+middleName;
+            } else if(firstName.match(/^ric[hk]?(ardo?|ie)?$/i)) {
+                firstName = "R(\\.|ic[hk]?(ardo?|ie)?)?"+middleName;
+            } else if(firstName.match(/^m(oe?|(u|o)hamm?(a|e|u|i)(d|t))$/i)) {
+                firstName = "M(\\.|oe?|(u|o)hamm?(a|u|e|i)(d|t))?"+middleName;
+            } else if(firstName.match(/^jo(s?e(y|ph)?)?$/i)) {
+                firstName = "J(\\.|o(s?e(y|ph)?)?)?"+middleName;
+            } else if(firstName.match(/^sam(uel|m?(ie|y)|antha)?$/i)) {
+                // This one might be dangerous as a unisex name. If "Samuel Smith" is intended to be
+                //  blocked, this might also block "Samantha Smith". Leaving for now.
+                firstName = "S(\\.|am(uel|m?(ie|y)|antha)?)?"+middleName;
+            } else if(firstName.match(/^jess((e|i)ca|y|ie)?$/i)) {
+                firstName = "J(\\.|ess((e|i)ca|y|ie)?)?"+middleName;
+            } else if(firstName.match(/^(an)?th?o(ine|n(ie|y))$/i)) {
+                firstName = "(An|T)(\\.|h?o(ine|n(ie|y)))?"+middleName;
+            } else if(firstName.match(/^and(y|ie|rew)$/i)) {
+                firstName = "A(\\.|nd(y|ie|rew))?"+middleName;
+            } else if(firstName.match(/^br(i|e)e?(ann?a)?$/i)) {
+                firstName = "B(\\.|r(i|e)e?(ann?a)?)?"+middleName;
+            } else {
+                // Same code as below.
+                firstName = firstName.substring(0,1)+"(\\.|"+firstName.substring(1,firstName.length)+")?";
+                firstName += middleName;
+            }
         } else {
             // Since it matches no names in our index above, set it with the generic pattern:
             //    ${FIRST_NAME:0:1}(\.|${FIRST_NAME:1:strlen(FIRST_NAME)}) ---> Example: E(\.|ric)?
