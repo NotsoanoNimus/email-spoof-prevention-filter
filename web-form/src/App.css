@@ -7,7 +7,9 @@
 }
 
 div.form-container {
-    width: 610px;
+    width: 100%;
+    min-width: 300px;
+    max-width: 610px;
     margin: 10px auto 0 auto;
     padding: 0;
 }
@@ -33,7 +35,7 @@ div#checkbox-container {
 }
 
 div#results-container {
-    width: 600px !important;
+    max-width: 600px !important;
     margin-top: 20px;
     height: 225px;
     max-height: 225px;
@@ -60,14 +62,17 @@ div#help-popup {
     background-color: rgba(0.4, 0.4, 0.4, 0.7);
     z-index: 10000;
     transition-duration: 0.5s;
+    overflow-y: auto !important;
 }
 
 div#help-popup-container {
     background-color: #eeeeee;
     color: #333333;
     border-radius: 20px;
-    padding: 5px 10px;
     margin-top: 25px;
+}
+div#help-popup-container-text {
+    padding: 10px !important;
 }
 
 div#help-button {
@@ -84,21 +89,25 @@ div#help-button {
     background-color: #0084cc;
     border-radius: 4px;
     transition-duration: 0.5s;
+    cursor: pointer;
 }
 div#help-button:hover {
-    cursor: pointer;
     background-color: #eeeeee;
     color: #0084cc;
 }
 
 input.form-entry-text {
-    width: 600px;
-    height: 45px;
+    max-width: 600px !important;
+    min-width: 300px;
+    width: 100%;
+    line-height: 45px;
+    max-height: 45px;
+    font-size: 1em;
     margin: 10px auto 0 auto;
     background-color: #eeeeee;
     color: #333333;
-    border: 0;
-    border-radius: 10px;
+    border: 1px solid #eeeeee;
+    border-radius: 7px;
     text-align: center;
     transition-duration: 0.5s;
 }
@@ -106,4 +115,6 @@ input.form-entry-text {
 input.form-entry-text:focus {
     background-color: #333333;
     color: #eeeeee;
+    border-radius: 10px;
+    border: 1px solid #0084cc;
 }

@@ -7,16 +7,19 @@ export default class RegexGenerator extends Component {
         this.parseExempts = this.parseExempts.bind(this);
     }
 
+    // Parse the "name" field and ensure that a valid name is entered.
+    //  After that, return the appropriate expression to pipe into the form output.
     parseInput(input) {
         if(!input) { return ""; }
         else { input = input.toString().replace(/[.']/gi, ""); }
 
         // Capture certain pieces of the name
-        let firstName  = input.match(/^\s*[a-z\'-.]+\s+/i).toString().trim();
-        let lastName   = input.match(/\s+[a-z\'-.]+\s*$/i).toString().trim();
-        let middleName = input.toString().replace(/^\s*[a-z\'-.]+\s+|\s+[a-z\'-.]+\s*$/gi, "").trim();
+        let firstName  = input.match(/^\s*[a-z'\-.]+\s+/i).toString().trim();
+        let lastName   = input.match(/\s+[a-z'\-.]+\s*$/i).toString().trim();
+        let middleName = input.toString().replace(/^\s*[a-z'\-.]+\s+|\s+[a-z'\-.]+\s*$/gi, "").trim();
         if(middleName === lastName) { middleName = ""; }
 
+        // If a middle-name is defined, chop it up and make it optional.
         if(middleName) {
             if(middleName.substring(1,middleName.length)) {
                 middleName = "( "+middleName.substring(0,1)+"(\\.|"+middleName.substring(1,middleName.length)+")?)?"
@@ -162,17 +165,16 @@ export default class RegexGenerator extends Component {
         name = name.toString().replace(/\s+/gi,"\\s+");
 
         if(this.props.exempt && !this.props.spamassassin) {
-            name = `From:\\s*\"?\\s*"+${name}+"\\s*\"?\\s+<(?!(${this.parseExempts(this.props.exempt)})>\\s*$)`;
-        } else if (this.props.exempt && this.props.spamassassin) {
-
+            name = `From:\\s*"?\\s*"+${name}+"\\s*"?\\s+<(?!(${this.parseExempts(this.props.exempt)})>\\s*$)`;
         }
 
         return name;
     }
 
+    // Replace exempts field with appropriate backslashes and other substitutions.
     parseExempts(exempts) {
         return exempts.replace(/,+/g,"|").replace(/@/g,"\\@").replace(/\+/g,"\\+")
-            .replace(/\./g,"\\.").replace(/\-/g,"\\-");
+            .replace(/\./g,"\\.").replace(/-/g,"\\-");
     }
 
     render() {
@@ -185,7 +187,7 @@ export default class RegexGenerator extends Component {
                     {`header __BSF_SP_EXEC_FROM From =~ /${this.parseInput(this.props.text)}/i`}<br />
                     {`header __BSF_SP_EXEC_EXEMPT From:addr =~ /(${this.parseExempts(this.props.exempt)})/i`}<br />
                     {`meta BSF_SP_EXEC (__BSF_SP_EXEC_FROM && !__BSF_SP_EXEC_EXEMPT)`}<br />
-                    {`describe BSF_SP_EXEC Spoofed Executive`}<br />
+                    {`describe BSF_SP_EXEC Spoofed Display Name`}<br />
                     {`score BSF_SP_EXEC 10.00`}
                 </code>
                 ) : (

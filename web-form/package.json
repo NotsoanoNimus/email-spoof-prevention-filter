@@ -1,6 +1,13 @@
 {
   "name": "web-form",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "author": "Zachary Puhl",
+  "license": "GPL-3.0",
+  "description": "A tool to create special rules that will thwart Display-Name spoofing in the From header of an email.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZacharyPuhl/email-spoof-prevention-filter.git"
+  },
   "private": true,
   "dependencies": {
     "react": "^16.8.4",

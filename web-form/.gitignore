@@ -9,7 +9,8 @@
 /coverage
 
 # production
-/build
+# RELEASE of 1.0 - 20190311 -
+# /build
 
 # misc
 .DS_Store

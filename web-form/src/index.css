@@ -3,6 +3,7 @@ body {
     padding: 0;
     background-color: #263145;
     color: #eeeeee;
+    outline: none !important;
 }
 
 code {
@@ -10,10 +11,13 @@ code {
     font-size: 14px;
 }
 
+label { cursor:pointer; }
+
 input[type=button] {
     border-radius: 10px;
     border: 0;
-    width: 100px;
+    width: 140px;
+    height: 30px;
     transition-duration: 0.5s;
 }
 
