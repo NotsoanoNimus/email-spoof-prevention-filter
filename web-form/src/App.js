@@ -63,7 +63,7 @@ export default class App extends Component {
             givenName : "", givenNameError : "",
             exempts : "", exemptsError : "", exemptsInput : ""
         });
-        document.getElementById('case-checkbox').disabled = false;
+        document.getElementById('caseInsensitive').disabled = false;
     }
 
     // Any time the form is changed in the render() function, update the state
@@ -77,10 +77,10 @@ export default class App extends Component {
 
         if(name === 'spamassassin' && value) {
             this.setState({caseInsensitive : true});
-            document.getElementById('case-checkbox').disabled = true;
+            document.getElementById('caseInsensitive').disabled = true;
         } else if (name === 'spamassassin' && !value) {
             if(this.state.caseInsensitive) { this.setState({caseInsensitive : false}); }
-            document.getElementById('case-checkbox').disabled = false;
+            document.getElementById('caseInsensitive').disabled = false;
         }
     }
 
@@ -99,22 +99,22 @@ export default class App extends Component {
                      onChange={(e)=>{this.updateExempts(e);}} className="form-entry-text" />
                 </div>
                 <div id="checkbox-container" className="form-container">
-                    <label title="Get rid of mixed-case characters between the square bracket selectors ([]).">
-                    Case Insensitive:&nbsp;
-                        <input type="checkbox" name="caseInsensitive" id="case-checkbox"
-                         checked={this.state.caseInsensitive} onChange={(e)=>{this.handleFormChange(e);}} />
-                    </label>
-                    <label style={{float:'right'}} title="Create a SpamAssassin meta-rule that supports exemption by email.">
-                    Spam-Assassin:&nbsp;
-                        <input type="checkbox" name="spamassassin"
-                        checked={this.state.spamassassin} onChange={(e)=>{this.handleFormChange(e);}} />
-                    </label>
+                    <label title="Get rid of mixed-case characters between the square bracket selectors ([])."
+                     for="caseInsensitive">{"Case Insensitive:"}&nbsp;
+                    <input type="checkbox" name="caseInsensitive" id="caseInsensitive"
+                     checked={this.state.caseInsensitive} onChange={(e)=>{this.handleFormChange(e);}} />
+                    <div className="checkboxView"><span>{"X"}</span></div></label>
+                    <label style={{float:'right'}} title="Create a SpamAssassin meta-rule that supports exemption by email."
+                     for="spamassassin">{"Spam-Assassin:"}&nbsp;
+                    <input type="checkbox" name="spamassassin" id="spamassassin"
+                     checked={this.state.spamassassin} onChange={(e)=>{this.handleFormChange(e);}} />
+                    <div className="checkboxView"><span>{"X"}</span></div></label>
                     <br />
-                    <label title="Expand variations of common first names, for example Bob into Robert, Bobbie, etc.">
-                    Expand First-Name:&nbsp;
-                        <input type="checkbox" name="firstnameExpansion"
-                         checked={this.state.firstnameExpansion} onChange={(e)=>{this.handleFormChange(e);}} />
-                    </label>
+                    <label title="Expand variations of common first names, for example Bob into Robert, Bobbie, etc."
+                     for="firstnameExpansion">{"Expand First-Name:"}&nbsp;
+                    <input type="checkbox" name="firstnameExpansion" id="firstnameExpansion"
+                     checked={this.state.firstnameExpansion} onChange={(e)=>{this.handleFormChange(e);}} />
+                    <div className="checkboxView"><span>{"X"}</span></div></label>
                 </div>
                 <div className="form-container" style={{'text-align':'center'}}>
                     <input type="button" value="Reset" onClick={()=>{this.resetForm()}} />

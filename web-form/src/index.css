@@ -4,6 +4,7 @@ body {
     background-color: var(--main-bg-color);
     color: var(--primary-form-color);
     outline: none !important;
+    font-size: 1em;
 }
 
 :root {
@@ -29,7 +30,7 @@ label { cursor:pointer; }
 
 input[type=checkbox] {
     cursor: pointer;
-
+    display: none;
 }
 
 input[type=button] {

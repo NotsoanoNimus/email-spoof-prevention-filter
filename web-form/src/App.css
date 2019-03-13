@@ -127,3 +127,37 @@ input.form-entry-text:focus {
     border-radius: 10px;
     border: 1px solid var(--secondary-color);
 }
+
+
+/************************/
+/* Custom checkbox code */
+div.checkboxView {
+    margin: 0; padding: 0;
+    transition: 0.5s;
+    text-align: center;
+    display: inline-block;
+    line-height: 14px;
+    width: 1em; height: 1em;
+    border-radius: 5px;
+    background-color: var(--secondary-color);
+}
+
+input[type=checkbox]:checked ~ div.checkboxView {
+    background-color: var(--alternate-form-color);
+    color: var(--primary-form-color);
+}
+input[type=checkbox]:checked ~ div.checkboxView > span {
+    visibility: visible;
+    color: red;
+}
+input[type=checkbox]:disabled ~ div.checkboxView {
+    background-color: #333333;
+}
+input[type=checkbox]:disabled ~ div.checkboxView > span {
+    color: #7f7f7f !important;
+}
+div.checkboxView > span {
+    visibility: hidden;
+    font-size: 1em;
+    vertical-align: middle;
+}
