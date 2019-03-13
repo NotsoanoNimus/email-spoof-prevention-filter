@@ -88,7 +88,7 @@ export default class App extends Component {
         return (
             <div className="App">
                 <div id="header-container" className="form-container">
-                    <img src="resources/BarracudaLogo.svg" id="cuda-logo" alt="" /><br />
+                    {/*<img src="resources/toolLogo.svg" id="tool-logo" alt="" /><br />*/}
                     <div id="header-text">{`Spoof Prevention Assistant`}</div>
                 </div>
                 <div id="textbox-container" className="form-container">
@@ -161,8 +161,7 @@ export default class App extends Component {
                             <hr />
                             <p>
                                 {"The SpamAssassin option is used on systems that use the spamd service to filter and score "}
-                                {"emails, like the Barracuda ESG, and acts as a "}<strong>{"substitute"}</strong>
-                                {" for systems that do not support look-aheads for exemptions."}
+                                {"emails, and acts as a "}<strong>{"substitute"}</strong>{" for systems that do not support look-aheads for exemptions."}
                             </p>
                             <p>
                                 {"To apply them, either navigate to the "}<i>{"local.cf"}</i>{" file on the target MTA using "}
@@ -173,6 +172,14 @@ export default class App extends Component {
                     </div>
                 </div>
                 <div id="help-button" onClick={()=>{document.getElementById('help-popup').style.display = 'block';}}>{"?"}</div>
+                <br />
+                <div id="footer-text" className="form-container">
+                    <strong>{"PLEASE NOTE"}</strong>{": This tool is NOT affiliated with any particular organization, "}
+                    {"and is built as an entirely open-source utility. "}
+                    {"Regardless of how you apply these rules, I am not responsible (nor is your Email Security provider) "}
+                    {"for ANYTHING you break by electing to use this tool. "}<strong>{"BY USING THIS TOOL, YOU AGREE TO ACCEPT "}
+                    {"ANY POTENTIAL RISKS THAT MAY BE ASSOCIATED BY ITS USE."}</strong>
+                </div>
             </div>
         );
     }

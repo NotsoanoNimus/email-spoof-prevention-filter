@@ -3,11 +3,13 @@ This script was inspired by a **sharp increase** in the rate of **Display-Name s
 
 It is designed to digest a name (_usually an executive or authority of sorts_) and spit out an email "**Header-From**" filter for that name. This generated filter will match all email _FROM:_ patters regardless of the reply-to email in the header.
 
+**Please see the web-form directory for a much cleaner and efficient tool that can be deployed on a web server.**
+
 ## Usage
 Usage of the script itself is pretty straight-forward:
 ```
 USAGE: ./ceo_filter_gen.sh "CEO-Name" [OPTIONS]...
-Generate an ESG/ESS/SA-compliant regular expression for a Display Name
+Generate a complex, general regular expression for a Display Name
   in the "From:" header of an email. This regex, by default, will
   match the name given, as well as typo-squatting variations of the
   name.
@@ -32,7 +34,7 @@ Here's a sample output from the script...
 ```
 [zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "John Y. Smith"
 Regex successfully generated for name "John Y. Smith"!
-Please enter this into the content filters section of an ESG/ESS for headers.
+Please enter this into the content filters section of an email security solution to scan for headers.
 
 From:\s*"?\s*((J(\.|[Oo0]h?n(a[Tt7]han|a[Tt7]h[Oo0]n|ny|n[IiLl1]{0,2}[Ee3])?)?(\s+Y\.?)?\s+[Ss5]m[IiLl1]{0,2}[Tt7]h)|([Ss5]m[IiLl1]{0,2}[Tt7]h,?\s+J(\.|[Oo0]h?n(a[Tt7]han|a[Tt7]h[Oo0]n|ny|n[IiLl1]{0,2}[Ee3])?)?(\s+Y\.?)?))\s*"?\s+<
 
@@ -65,9 +67,9 @@ From:\s*"?\s*((J(\.|[Oo0]h?n(a[Tt7]han|a[Tt7]h[Oo0]n|ny|n[IiLl1]{0,2}[Ee3])?)?(\
 This is the ideal use of this script if your content filtering supports regex look-ahead.
 
 ### The -c Flag
-The script also includes an option to output custom rules for _SpamAssassin_ as well, in case you are an email administrator that utilizes open-source software. This solution is also, luckily, Barracuda-ESG-compatible, but has to be added by their support team upon request.
+The script also includes an option to output custom rules for _SpamAssassin_ as well, in case you are an email administrator that utilizes open-source software. This solution is also, luckily, Barracuda-ESG-compatible, but has to be added by their support team upon request. Just tell them to reference **Solution #00005971, STEP 8** and they can take care of the rest.
 
-Again, it builds upon the -e flag above but produces a different output:
+Again, this option builds upon the -e flag above but produces a different output:
 ```
 [zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "Zachary T. Puhl" -e"zpuhl@barracuda.com,zack.puhl@yahoo.com,zpuhl@yeethop.xyz" -c
 Regex successfully generated for name "Zachary T. Puhl"!
@@ -80,7 +82,7 @@ describe BSF_SP_EXEC Spoofed Executive
 score BSF_SP_EXEC 10.00
 ```
 
-_Note: The "BSF_SP_EXEC" in the custom rule stands for "Barracuda Spam Firewall -> Spoof Protection -> Executive" and is entirely my own naming convention, not affiliated with the Barracuda engineering/development annotation of custom rules. This name doesn't really matter and can be changed next to the meta keyword where it's defined._
+_Note: The "BSF_SP_EXEC" in the custom rule stands for "Barracuda Spam Firewall -> Spoof Protection -> Executive" and is entirely my own naming convention, **not** affiliated with the Barracuda engineering/development annotation of custom rules. This name doesn't really matter and can be changed next to the meta keyword where it's defined._
 
 ### Important Note!
 You should **always** ask for the CEO or executive's middle name (or at least initial) to make this more thorough! Entering a name into the script _without a middle name/initial_ will generate a regex that _will NOT match From headers with middle names/initials_!
@@ -111,13 +113,13 @@ Punch a name into the script on your home Linux workstation, copy the regex, and
 - DIRECTION: `inbound only` <-- so we don't block the spoofed executive going outbound.
 
 ### A problem with the solution presented by this script
-As you have probably already guessed, using these filters has a catch.
+As you have probably already guessed, using these filters has a catch, **if you can't use any of the exemption options**.
 
-**Your CEO/executive/whatever won't be able to use his/her third-party email service to email people in your company anymore.** In my opinion, this is an even trade to stop the spoofing and to cap the risk of losing $1k+ to a spear-phishing attack.
+Your CEO/executive/whatever won't be able to use his/her third-party email service to email people in your company anymore. In my opinion, this is an even trade to stop the spoofing and to cap the risk of losing $1k+ to a spear-phishing attack.
 
-If you have a Barracuda, you're in luck. You can _whitelist the executive's 3rd-party email_ so that everyone is happy, and all is well. Just monitor the whitelist and make sure it isn't abused by someone out there that might know it!
+If you have a Barracuda, you're in luck. You can _use the SpamAssassin rule (on an ESG) through their support team, or alternatively use the regular generator and whitelist the executive's 3rd-party email_ so that everyone is happy, and all is well. Just monitor the whitelist (if used) and make sure it isn't abused by someone out there that might know it!
 
-If you don't have a Barracuda, consult with your current product support and see if you have support for "look-ahead" operators with your content filtering. Then you can use the "-e" option as mentioned above.
+If you don't have a Barracuda, consult with your current product support and see if you have support for "look-ahead" operators with your content filtering, or if their product uses the SpamAssassin utility. Then you can use the "-e" or "-c" options as mentioned above.
 
 ---
 
@@ -141,9 +143,9 @@ Some may be concerned by me releasing the regular expressions some admins might 
 
 To quell those fears, I should note that this project is intended to _inspire_ other formulas, solutions, and knowledge of email content filters to improve an administrator's role in **protecting their users**, as their job title states.
 
-By writing this project up in a few days (both as a brainstorm and to automate a frequent task), I am trying to demonstrate to others that a solution to these common problems can be easily drafted with a little effort.
+By writing this project up in a few days (both as a brainstorm and to automate a frequent task), I am trying to demonstrate to others that a solution to these common problems can be easily drafted with a little effort. If a spammer **finds a way around filters generated by my tool**, please let me know and I'll try to fix it! But also, be proactive and learn to fix it as well, in case you must in the future and my tool becomes unavailable.
 
-Also, this form of protection provides an umbrella for even those with the lowest product models and features, who may be garroted by an efficient spear-phishing campaign.
+As an additional self-righteous side-note, this form of protection that the tool creates provides an umbrella for even those with the lowest product models and features, who may be garroted by an efficient spear-phishing campaign.
 
 ---
 
@@ -155,3 +157,5 @@ Things to still check off the list for this project will be listed here, as well
 + [X] Finish this README document.
 + [X] Build a JavaScript-based web form to do all of this with a clean GUI.
 + [ ] Add support for **unicode** typosquatting, or at least an expanded ASCII version.
++ [ ] Add a checkbox/"select" for name prefixes (Mr/Ms/Mrs/Dr/etc).
++ [ ] Add some kind of slider or Radio button that will adjust the generality of the generated regex.

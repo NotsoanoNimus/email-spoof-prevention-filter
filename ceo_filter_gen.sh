@@ -16,7 +16,7 @@
 # Display the usage information of the script.
 function usage() {
   echo "USAGE: $0 \"CEO-Name\" [OPTIONS]..."
-  echo "Generate an ESG/ESS/SA-compliant regular expression for a Display Name"
+  echo "Generate a complex, general regular expression for a Display Name"
   echo "  in the \"From:\" header of an email. This regex, by default, will"
   echo "  match the name given, as well as typo-squatting variations of the"
   echo "  name."
@@ -330,7 +330,7 @@ fi
 # Everything is done, output the final result and other information.
 echo "Regex successfully generated for name \"${TC_CYAN}${ORIG_NAME}${TC_NORMAL}\"!"
 if [ -z "$CUSTOM_RULE_GEN" ]; then
-  echo -e "Please enter this into the content filters section of an ${TC_GREEN}ESG/ESS${TC_NORMAL} for ${TC_YELLOW}headers${TC_NORMAL}.\n"
+  echo -e "Please enter this into the content filters section of an email security solution to scan for ${TC_YELLOW}headers${TC_NORMAL}.\n"
   echo "${REGEX}"
   [[ -n "${LOOK_AHEAD_ADDRESS}" ]] && \
   echo -e "\n${TC_BOLD}${TC_BLUE}WARNING${TC_NORMAL}: The above regex uses LOOK-AHEAD operators, which ${TC_RED}ARE NOT BARRACUDA-COMPATIBLE${TC_NORMAL}!!! \

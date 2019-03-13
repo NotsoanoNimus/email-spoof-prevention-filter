@@ -1,23 +1,40 @@
 body {
     margin: 10px;
     padding: 0;
-    background-color: #263145;
-    color: #eeeeee;
+    background-color: var(--main-bg-color);
+    color: var(--primary-form-color);
     outline: none !important;
+}
+
+:root {
+    --main-bg-color: #322B24;
+    --secondary-color: #D46102;
+    --primary-form-color: #FFB273;
+    --secondary-form-color: #333333;
+    --alternate-form-color: #FFDDC1;
+}
+
+::-moz-selection, ::selection {
+    background-color: var(--alternate-form-color);
+    color: var(--secondary-color);
 }
 
 code {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
     font-size: 14px;
+    color: black !important;
 }
 
 label { cursor:pointer; }
 
 input[type=checkbox] {
     cursor: pointer;
+
 }
 
 input[type=button] {
+    background-color: var(--primary-form-color);
+    color: var(--secondary-form-color);
     border-radius: 10px;
     border: 0;
     width: 140px;
@@ -26,12 +43,12 @@ input[type=button] {
 }
 
 input[type=button]:hover {
-    background-color: #333333;
-    color: #eeeeee;
+    background-color: var(--secondary-form-color);
+    color: var(--primary-form-color);
     cursor: pointer;
     box-shadow: 0 0 5px 2px black;
 }
 
-a { color: #0084cc; }
-a:visited { color: #0084cc; }
-a:hover { color: #eeeeee; }
+a { color: var(--secondary-color); }
+a:visited { color: var(--secondary-color); }
+a:hover { color: var(--primary-form-color); }
