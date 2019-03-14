@@ -20,7 +20,7 @@ div#header-container {
 
 div#header-text {
     color: var(--alternate-form-color);
-    padding: 20px 0 0 0;
+    padding: 0; margin: 0;
     font-size: 36px;
     font-weight: bold;
     font-family: serif !important;

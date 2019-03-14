@@ -1,13 +1,13 @@
 {
-  "main.css": "/static/css/main.30967907.chunk.css",
-  "main.js": "/static/js/main.13d74419.chunk.js",
-  "main.js.map": "/static/js/main.13d74419.chunk.js.map",
-  "runtime~main.js": "/static/js/runtime~main.c5541365.js",
-  "runtime~main.js.map": "/static/js/runtime~main.c5541365.js.map",
-  "static/js/2.ce3d475a.chunk.js": "/static/js/2.ce3d475a.chunk.js",
-  "static/js/2.ce3d475a.chunk.js.map": "/static/js/2.ce3d475a.chunk.js.map",
-  "index.html": "/index.html",
-  "precache-manifest.bb46cebb50010a5ab29ecb8aaa1e67f0.js": "/precache-manifest.bb46cebb50010a5ab29ecb8aaa1e67f0.js",
-  "service-worker.js": "/service-worker.js",
-  "static/css/main.30967907.chunk.css.map": "/static/css/main.30967907.chunk.css.map"
+  "main.css": "/spoofing/static/css/main.c2f43e4a.chunk.css",
+  "main.js": "/spoofing/static/js/main.61c08b2e.chunk.js",
+  "main.js.map": "/spoofing/static/js/main.61c08b2e.chunk.js.map",
+  "runtime~main.js": "/spoofing/static/js/runtime~main.7bd21da6.js",
+  "runtime~main.js.map": "/spoofing/static/js/runtime~main.7bd21da6.js.map",
+  "static/js/2.ce3d475a.chunk.js": "/spoofing/static/js/2.ce3d475a.chunk.js",
+  "static/js/2.ce3d475a.chunk.js.map": "/spoofing/static/js/2.ce3d475a.chunk.js.map",
+  "index.html": "/spoofing/index.html",
+  "precache-manifest.f7bc119cbeaa5b0b229d968ea90ec373.js": "/spoofing/precache-manifest.f7bc119cbeaa5b0b229d968ea90ec373.js",
+  "service-worker.js": "/spoofing/service-worker.js",
+  "static/css/main.c2f43e4a.chunk.css.map": "/spoofing/static/css/main.c2f43e4a.chunk.css.map"
 }
