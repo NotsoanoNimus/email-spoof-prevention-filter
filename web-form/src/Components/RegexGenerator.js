@@ -69,7 +69,7 @@ export default class RegexGenerator extends Component {
             } else if(firstName.match(/^ron(ald|n?(y|ie))?$/i)) {
                 firstName = "R(\\.|on(ald|n?(y|ie))?)?"+middleName;
             } else if(firstName.match(/^(miriam|mar(ie|y|iam))$/i)) {
-                firstName = "M(\\.|(i|a)riam|y|ie)?"+middleName;
+                firstName = "M(\\.|(i|a)r(iam|y|ie))?"+middleName;
             } else if(firstName.match(/^mi(cha?el|key?)$/i)) {
                 firstName = "M(\\.|i(key?|cha?el))?"+middleName;
             } else if(firstName.match(/^mat(t?hew)?$/i)) {
