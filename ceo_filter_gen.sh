@@ -1,13 +1,30 @@
 #!/bin/bash
 
 # CEO_FILTER_GEN.sh
-: Description: Create special regex content filters to prevent CEO display-name spoofing on ESG and ESS.
-: Author: Zachary Puhl
-: Contact: zpuhl@barracuda.com // postmaster@yeethop.xyz
-: Date: 28 February, 2019
-: Product: Email Security Gateway, Email Security Service
-: Firmware: -ESG- 8.1.0.003, -ESS- 2019.1
+# Description: Create special regex content filters to prevent CEO display-name spoofing.
+#   Initially designed for compatibility with Barracuda ESG/ESS, but can be used otherwise.
+# Contributors:
+#   Notsoano Nimus <postmaster@thestraightpath.email>
+# Date [of first use]: 28 February, 2019
 ####################
+
+######################################################################################
+# ceo_filter_gen is a script to general special filters for display-name spoof prevention.
+#
+# Copyright (C) 2019 "Notsoano Nimus", as a free software project
+#  licensed under GNU GPLv3.
+#
+# This program is free software: you can redistribute it and/or modify it under
+#  the terms of the GNU General Public License as published by the Free Software
+#  Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+#  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+#  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+#  this program. If not, see https://www.gnu.org/licenses/.
+######################################################################################
 
 ###################################################
 #Declare initial functions to simplify main script.

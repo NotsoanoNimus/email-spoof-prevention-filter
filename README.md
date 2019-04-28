@@ -32,7 +32,7 @@ OPTIONS:
 
 Here's a sample output from the script...
 ```
-[zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "John Y. Smith"
+[guy@ArchLinux ~]$ ./ceo_filter_gen.sh "John Y. Smith"
 Regex successfully generated for name "John Y. Smith"!
 Please enter this into the content filters section of an email security solution to scan for headers.
 
@@ -58,7 +58,7 @@ Also, if your email content filtering supports regex __look-ahead__ operators (B
 
 Following the example above, we can say that the filter should match **ALL** "John Smith" senders **UNLESS** the reply-to address is "_jsmith@realdomain.net_":
 ```
-[zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "John Y. Smith" -e "jsmith@realdomain.net"
+[guy@ArchLinux ~]$ ./ceo_filter_gen.sh "John Y. Smith" -e "jsmith@realdomain.net"
 Regex successfully generated for name "John Y. Smith"!
 Please enter this into the content filters section of an ESG/ESS for headers.
 
@@ -71,12 +71,12 @@ The script also includes an option to output custom rules for _SpamAssassin_ as 
 
 Again, this option builds upon the -e flag above but produces a different output:
 ```
-[zack@AMD64-arch ~]$ ./ceo_filter_gen.sh "Zachary T. Puhl" -e"zpuhl@barracuda.com,zack.puhl@yahoo.com,zpuhl@yeethop.xyz" -c
-Regex successfully generated for name "Zachary T. Puhl"!
+[guy@ArchLinux ~]$ ./ceo_filter_gen.sh "Good E. Guy" -e"goodguy@notbad.com,business@email.net" -c
+Regex successfully generated for name "Good E. Guy"!
 Please edit the file [REDACTED] on the target Barracuda ESG, or alternatively the local.cf file on the MTA using SpamAssassin, and paste these lines at the bottom:
 
-header __BSF_SP_EXEC_FROM From =~ /((Z(\.|ac([kh](([e3]|a)ry)?)?)?(\s+[t7]\.?)?\s+Puh[il1])|(Puh[il1],?\s+Z(\.|ac([kh](([e3]|a)ry)?)?)?(\s+[t7]\.?)?))/i
-header __BSF_SP_EXEC_EXEMPT From:addr =~ /(zpuhl\@barracuda\.com|zack\.puhl\@yahoo\.com|zpuhl\@yeethop\.xyz)/i
+header __BSF_SP_EXEC_FROM From =~ /((G(\.|[o0]{1,3}d)?(\s+[e3]\.?)?\s+Guy)|(Guy,?\s+G(\.|[o0]{1,3}d)?(\s+[e3]\.?)?))/i
+header __BSF_SP_EXEC_EXEMPT From:addr =~ /(goodguy\@notbad\.com|business\@email\.net)/i
 meta BSF_SP_EXEC (__BSF_SP_EXEC_FROM && !__BSF_SP_EXEC_EXEMPT)
 describe BSF_SP_EXEC Spoofed Executive
 score BSF_SP_EXEC 10.00
@@ -159,3 +159,4 @@ Things to still check off the list for this project will be listed here, as well
 + [ ] Add support for **unicode** typosquatting, or at least an expanded ASCII version.
 + [ ] Add a checkbox/"select" for name prefixes (Mr/Ms/Mrs/Dr/etc).
 + [ ] Add some kind of slider or Radio button that will adjust the generality of the generated regex.
++ [ ] Make the web-form completely minimalist/basic for Internet Explorer and incompatible browsers.

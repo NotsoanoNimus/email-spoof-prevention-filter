@@ -10,7 +10,7 @@
 
 # production
 # RELEASE of 1.0 - 20190311 -
-# /build
+/build
 
 # misc
 .DS_Store
