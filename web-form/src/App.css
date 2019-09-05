@@ -36,6 +36,7 @@ div#checkbox-container {
 }
 
 div#results-container {
+	display: block !important;
     max-width: 600px !important;
     margin-top: 20px;
     height: 225px;

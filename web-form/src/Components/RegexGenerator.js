@@ -1,10 +1,17 @@
 import React, { Component } from 'react';
+import { wellKnownNames } from './FirstNames';
 
 export default class RegexGenerator extends Component {
     constructor(props) {
         super(props);
         this.parseInput = this.parseInput.bind(this);
         this.parseExempts = this.parseExempts.bind(this);
+        this.implementSquatProtection = this.implementSquatProtection.bind(this);
+    }
+    
+    static defaultProps = {
+    	titlePrefixes : ["Mr", "Ms", "Mrs", "Doctor", "Professor"],
+    	titleSuffixes : ["CxO", "VP", "Sr", "Jr", "M.D.", "Ph.D", "Director"]
     }
 
     // Parse the "name" field and ensure that a valid name is entered.
@@ -26,77 +33,19 @@ export default class RegexGenerator extends Component {
             } else { middleName = "( "+middleName.substring(0,1)+"\\.?)?"; }
         }
 
+		// If expanding the first name is desired, do so accordingly.
         if(this.props.expand) {
             // Iterate through well-known first-names with various permutations.
-            if(firstName.match(/^joh?n(ath(a|o)n|ny|nie)?$/i)) {
-                firstName = "J(\\.|oh?n(athan|athon|ny|nie)?)?"+middleName;
-            } else if(firstName.match(/^dan(n(y|ie)|iel)?$/i)) {
-                firstName = "D(\\.|an(n(y|ie)|iel)?)?"+middleName;
-            } else if(firstName.match(/^zac([kh]([ae]ry)?)?$/i)) {
-                firstName = "Z(\\.|ac([kh]((e|a)ry)?)?)?"+middleName;
-            } else if(firstName.match(/^(bob(b?(y|ie))?|(rob(ert|b?(y|ie))?))$/i)) {
-                firstName = "(((B|R)\\.?)|Bob(b?(y|ie))?|Rob(ert|b?(y|ie))?)"+middleName;
-            } else if(firstName.match(/^th?om(as|m?(y|ie))?$/i)) {
-                firstName = "T(\\.|h?om(as|m?(y|ie))?)?"+middleName;
-            } else if(firstName.match(/^([bw]ill(iam|y|ie)?)$/i)) {
-                firstName = "(B|W)(\\.|ill(iam|y|ie)?)?"+middleName;
-            } else if(firstName.match(/^al(ice|lison|l?ie)$/i)) {
-                firstName = "A(\\.|l(ice|lison|l?ie))?"+middleName;
-            } else if(firstName.match(/^e?li(za(beth)?|sa|zz?(y|ie))$/i)) {
-                firstName = "E?li(za(beth)?|sa|zz?(y|ie)?)"+middleName;
-            } else if(firstName.match(/^ste(v|ph)en?$/i)) {
-                firstName = "S(\\.|te(v|ph)en?)?"+middleName;
-            } else if(firstName.match(/^s(hawn|ean)$/i)) {
-                firstName = "S(\\.|hawn|ean)?"+middleName;
-            } else if(firstName.match(/^dav(e|id)$/i)) {
-                firstName = "D(\\.|av(e|id))?"+middleName;
-            } else if(firstName.match(/^greg(ory)?$/i)) {
-                firstName = "G(\\.|reg(ory)?)?"+middleName;
-            } else if(firstName.match(/^don(ald|n?(y|ie))?$/i)) {
-                firstName = "D(\\.|on(ald|n?(y|ie))?)?"+middleName;
-            } else if(firstName.match(/^ch?ris(topher)?$/i)) {
-                firstName = "C(\\.|h?ris(topher)?)?"+middleName;
-            } else if(firstName.match(/^j(am(es|e?y|ie)|im(m(y|ie))?)$/i)) {
-                firstName = "J(\\.|am(es|e?y|ie)|im(m(y|ie))?)?"+middleName;
-            } else if(firstName.match(/^ch(arl(ie|ee|es)|uck(y|ie)?)$/i)) {
-                firstName = "C(\\.|h(arl(ie|ee|es)|uck(y|ie)?))?"+middleName;
-            } else if(firstName.match(/^jenn?(y|ifer|ie)?$/i)) {
-                firstName = "J(\\.|enn?(y|ie|ifer)?)?"+middleName;
-            } else if(firstName.match(/^su(e|sie|san)$/i)) {
-                firstName = "S(\\.|u(e|sie|san))?"+middleName;
-            } else if(firstName.match(/^deb(b(y|ie)?|ra|orah?)?$/i)) {
-                firstName = "D(\\.|eb(b(y|ie)?|ra|orah?)?)?"+middleName;
-            } else if(firstName.match(/^ron(ald|n?(y|ie))?$/i)) {
-                firstName = "R(\\.|on(ald|n?(y|ie))?)?"+middleName;
-            } else if(firstName.match(/^(miriam|mar(ie|y|iam))$/i)) {
-                firstName = "M(\\.|(i|a)r(iam|y|ie))?"+middleName;
-            } else if(firstName.match(/^mi(cha?el|key?)$/i)) {
-                firstName = "M(\\.|i(key?|cha?el))?"+middleName;
-            } else if(firstName.match(/^mat(t?hew)?$/i)) {
-                firstName = "M(\\.|at(t?hew)?)?"+middleName;
-            } else if(firstName.match(/^ken(n?(y|ie|eth))?$/i)) {
-                firstName = "K(\\.|en(n?(y|ie|eth))?)?"+middleName;
-            } else if(firstName.match(/^ric[hk]?(ardo?|ie)?$/i)) {
-                firstName = "R(\\.|ic[hk]?(ardo?|ie)?)?"+middleName;
-            } else if(firstName.match(/^m(oe?|(u|o)hamm?(a|e|u|i)(d|t))$/i)) {
-                firstName = "M(\\.|oe?|(u|o)hamm?(a|u|e|i)(d|t))?"+middleName;
-            } else if(firstName.match(/^jo(s?e(y|ph)?)?$/i)) {
-                firstName = "J(\\.|o(s?e(y|ph)?)?)?"+middleName;
-            } else if(firstName.match(/^sam(uel|m?(ie|y)|antha)?$/i)) {
-                // This one might be dangerous as a unisex name. If "Samuel Smith" is intended to be
-                //  blocked, this might also block "Samantha Smith". Leaving for now.
-                firstName = "S(\\.|am(uel|m?(ie|y)|antha)?)?"+middleName;
-            } else if(firstName.match(/^jess((e|i)ca|y|ie)?$/i)) {
-                firstName = "J(\\.|ess((e|i)ca|y|ie)?)?"+middleName;
-            } else if(firstName.match(/^(an)?th?o(ine|n(ie|y))$/i)) {
-                firstName = "(An|T)(\\.|h?o(ine|n(ie|y)))?"+middleName;
-            } else if(firstName.match(/^and(y|ie|rew)$/i)) {
-                firstName = "A(\\.|nd(y|ie|rew))?"+middleName;
-            } else if(firstName.match(/^br(i|e)e?(ann?a)?$/i)) {
-                firstName = "B(\\.|r(i|e)e?(ann?a)?)?"+middleName;
-            } else {
-                // Same code as below.
-                firstName = firstName.substring(0,1)+"(\\.|"+firstName.substring(1,firstName.length)+")?";
+            let isMatch = false
+            for(let item in wellKnownNames) {
+            	if(firstName.match(wellKnownNames[item].regex) && isMatch !== true) {
+            		firstName = wellKnownNames[item].mutation + middleName;
+            		isMatch = true
+            	}
+            }
+            if(isMatch !== true) {
+            	// Mutate the uncommon name: Sherry --> S(\.|herry)?
+            	firstName = firstName.substring(0,1)+"(\\.|"+firstName.substring(1,firstName.length)+")?";
                 firstName += middleName;
             }
         } else {
@@ -106,10 +55,73 @@ export default class RegexGenerator extends Component {
             // Now combine it with the middle name, if any.
             firstName += middleName;
         }
+        
+        if(this.props.sliceLastName && lastName) {
+        	lastName = lastName.substring(0,1)+"(\\.|"+lastName.substring(1,lastName.length)+")?";
+        }
+
+		let lastNameSuffix = ""
+		// Parse the titles object (if any were selected).
+		if(this.props.titles && this.props.titles.length > 0) {
+			let titles = this.props.titles
+			let tPrefixes = []
+			let tPrefix = ""
+			let tSuffixes = []
+			let tSuffix = ""
+			for(let j = 0; j < titles.length; j++) {
+				// Split the chosen title into the "prefix" or "suffix" type.
+				if(this.props.titlePrefixes.includes(titles[j])) {
+					tPrefixes.push(titles[j])
+				} else if(this.props.titleSuffixes.includes(titles[j])) {
+					tSuffixes.push(titles[j])
+				}
+			}
+			if(tPrefixes && tPrefixes.length > 0) {
+				tPrefix += "(("
+				for(let i = 0; i < tPrefixes.length; i++) {
+					if(tPrefixes[i] === 'Doctor') {
+						tPrefix += '(dr\\.?|doctor)'
+					} else if(tPrefixes[i] === 'Professor') {
+						tPrefix += '(prof(\\.|essor)?)'
+					} else if(tPrefixes[i] === 'Director') {
+						tPrefix += '(dir(ector)?)'
+					} else {
+						tPrefix += `(${tPrefixes[i]}\\.?)`
+					}
+					// If there are still more to parse, add a pipe.
+					if(i < tPrefixes.length - 1) { tPrefix += "|" }
+				}
+				// Close the nest and require at least one space between the prefix and first name.
+				tPrefix += ") )?"
+				// Append the prefix string to the first name item.
+				firstName = `${tPrefix}${firstName}`
+			}
+			if(tSuffixes && tSuffixes.length > 0) {
+				tSuffix += "(,? ("
+				for(let i = 0; i < tSuffixes.length; i++) {
+					if(tSuffixes[i] === 'M.D.') {
+						tSuffix += '(M\\.?D\\.?|D(r\\.?|octor) of Medicine)'
+					} else if(tSuffixes[i] === 'Ph.D') {
+						tSuffix += '(Ph\\.?D)'
+					} else if(tSuffixes[i] === 'VP') {
+						tSuffix += '(V\\.?P\\.?|Vice President)'
+					} else if(tSuffixes[i] === 'CxO') {
+						tSuffix +='(C\\.?\\w\\.?O\\.?|Chief( of)? \\w+( Officer)?)'
+					} else {
+						tSuffix += `(${tSuffixes[i]}\\.?)`
+					}
+				}
+				// Close out the nesting.
+				tSuffix += "))?"
+				// This variable is different from the way prefixes work, as they're almost exclusively at the
+				//  end of a person's name whether or not their name is reversed.
+				lastNameSuffix = tSuffix
+			}
+		}
 
         // Build a version of the regex that will catch the name in the formal and informal pattern.
         //   So, match both: "John H. Smith" and "Smith, John H." formats.
-        let name = "("+firstName+" "+lastName+")|("+lastName+",? "+firstName+")";
+        let name = "("+firstName+" "+lastName+lastNameSuffix+")|("+lastName+",? "+firstName+lastNameSuffix+")";
 
         /*
          * Scan the string now and condense similar chars into a regex quantity operator.
@@ -118,56 +130,63 @@ export default class RegexGenerator extends Component {
          *     a {3,5} into the string. The NEXT STEP will remove all the extras from the string
          *     and condense them into a single character properly.
          */
-        for(let i = 0; i < name.length; i++) {
-            if(name[i].match(/[il]/i)) {
-                for(let j = 1; ; j++) {
-                    if(!name[i+j].match(/[li]/i)) {
-                        if(j > 1) {
-                            name = name.substring(0,i+1)+"{"+(j-1).toString()+","
-                                +(j+1).toString()+"}"+name.substring(i+j,name.length);
-                            i = i+j+3;
-                            break;
-                        } else { break; }
-                    }
-                }
-            } else if (name[i].match(/e/i)) {
-                if(name[i+1].match(/e/i)) {
-                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
-                    i += 5;
-                } else { continue; }
-            } else if (name[i].match(/s/i)) {
-                if(name[i+1].match(/s/i)) {
-                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
-                    i += 5;
-                } else { continue; }
-            } else if (name[i].match(/t/i)) {
-                if(name[i+1].match(/t/i)) {
-                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
-                    i += 5;
-                } else { continue; }
-            } else if (name[i].match(/o/i)) {
-                if(name[i+1].match(/o/i)) {
-                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
-                    i += 5;
-                } else { continue; }
-            } else if (name[i].match(/b/i)) {
-                if(name[i+1].match(/b/i)) {
-                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
-                    i += 5;
-                } else { continue; }
-            }
+        if(this.props.typosquatProtection) {
+        	// Just leave this on with TS protection. Was set to 2 but makes too many [il1] combos.
+        	if(Number(this.props.TSLVL) >= 1) {
+		        for(let i = 0; i < name.length; i++) {
+		            if(name[i].match(/[il]/i)) {
+		                for(let j = 1; ; j++) {
+		                    if(!name[i+j].match(/[li]/i)) {
+		                        if(j > 1) {
+		                            name = name.substring(0,i+1)+"{"+(j-1).toString()+","
+		                                +(j+1).toString()+"}"+name.substring(i+j,name.length);
+		                            i = i+j+3;
+		                            break;
+		                        } else { break; }
+		                    }
+		                }
+		            } else if (name[i].match(/e/i)) {
+		                if(name[i+1].match(/e/i)) {
+		                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
+		                    i += 5;
+		                } else { continue; }
+		            } else if (name[i].match(/s/i)) {
+		                if(name[i+1].match(/s/i)) {
+		                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
+		                    i += 5;
+		                } else { continue; }
+		            } else if (name[i].match(/t/i)) {
+		                if(name[i+1].match(/t/i)) {
+		                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
+		                    i += 5;
+		                } else { continue; }
+		            } else if (name[i].match(/o/i)) {
+		                if(name[i+1].match(/o/i)) {
+		                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
+		                    i += 5;
+		                } else { continue; }
+		            } else if (name[i].match(/b/i)) {
+		                if(name[i+1].match(/b/i)) {
+		                    name = name.substring(0,i+1)+"{1,3}"+name.substring(i+2,name.length);
+		                    i += 5;
+		                } else { continue; }
+		            }
+		        }
+		    }
+
+	        // Replace chars vulnerable to typosquatting with their regex equivalent, depending on the strength of TSLVL.
+	        ["il", "o", "e", "s", "t", "b"].map((item, index) => {
+	        	let regexStr = `[${item}]`
+	        	if(Number(this.props.TSLVL > 1)) { regexStr += "+" }
+	        	let regex = new RegExp(regexStr, "gi")
+	        	let strength = this.props.TSLVL ? this.props.TSLVL : 0
+	        	let replaceStr = this.implementSquatProtection(item, strength, this.props.caseInsensitive)
+	        	name = name.toString().replace(regex, replaceStr)
+	        	return null
+	        })
         }
 
-        // Replace chars vulnerable to typosquatting with their regex equivalent.
-        name = name.toString()
-            .replace(/[il]+/gi,(this.props.caseInsensitive ? "[il1]" : "[iIlL1]"))
-            .replace(/e+/gi,(this.props.caseInsensitive ? "[e3]" : "[Ee3]"))
-            .replace(/s+/gi,(this.props.caseInsensitive ? "[s5]" : "[Ss5]"))
-            .replace(/t+/gi,(this.props.caseInsensitive ? "[t7]" : "[Tt7]"))
-            .replace(/o+/gi,(this.props.caseInsensitive ? "[o0]" : "[Oo0]"))
-            .replace(/b+/gi,(this.props.caseInsensitive ? "[b8]" : "[Bb8]"));
-
-        // Replace any remaining spaces with a \s switch.
+        // Replace any remaining spaces with a \s expression.
         name = name.toString().replace(/\s+/gi,"\\s+");
 
         if(this.props.exempt && !this.props.spamassassin) {
@@ -178,6 +197,30 @@ export default class RegexGenerator extends Component {
 
         return name;
     }
+    
+    
+    // Get the substring used to replace typosquat characters in the Name field, depending on the prot lvl.
+    implementSquatProtection(chars, tsLvl, caseInsensitive) {
+    	let equivalencies = {
+    		"il" : { num : "1", tsLvl: 1 },
+    		"o" : { num : "0", tsLvl: 2 },
+    		"e" : { num : "3", tsLvl: 3 },
+    		"s" : { num : "5", tsLvl: 4 },
+    		"t" : { num : "7", tsLvl: 5 },
+    		"b" : { num : "8", tsLvl: 5 },
+    	}
+    	
+    	// If the ts prot lvl is lower than the requirement for the passed character, just return the char (if not "il").
+    	if(tsLvl < equivalencies[chars].tsLvl && chars !== 'il') { return chars }
+    	
+    	let finalReplacement = "[" + chars
+    	if(caseInsensitive === false) { finalReplacement += chars.toUpperCase() }
+    	if(equivalencies[chars] && tsLvl >= equivalencies[chars].tsLvl) { finalReplacement += equivalencies[chars].num }
+    	finalReplacement += "]"
+    	
+    	return finalReplacement
+    }
+    
 
     // Replace exempts field with appropriate backslashes and other substitutions.
     parseExempts(exempts) {

@@ -1,4 +1,16 @@
 # Display Name Spoof Prevention
+
+---
+
+## Important Edit
+Though the original intent of this project was a script for a Linux-backed support organization, I have since made a much better web interface to do the exact same thing, but graphically.
+The Shell content can still be read below, but it's missing a **LOT** of **KEY FEATURES** that I've added to the project under the _web-form_ folder, and is horribly out of date.
+
+### In Short...
+Check out the web interface for the project [at this website](https://yeethop.xyz/spoofing/) to see it in action.
+
+---
+
 This script was inspired by a **sharp increase** in the rate of **Display-Name spoofing** that I've seen during the duration of my work in Email Security, Business-to-Business, enterprise, and even small-town IT.
 
 It is designed to digest a name (_usually an executive or authority of sorts_) and spit out an email "**Header-From**" filter for that name. This generated filter will match all email _FROM:_ patters regardless of the reply-to email in the header.

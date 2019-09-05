@@ -6,9 +6,14 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            caseInsensitive : false,
+            caseInsensitive : true,
             spamassassin : false,
+            typosquatProtection : true,
             firstnameExpansion : true,
+            TSLVL : 1,
+            sliceLastName : false,
+            includeTitles : false,
+            titles : [],
             input : "",
             givenName : "", givenNameError : "",
             exempts : "", exemptsError : "", exemptsInput : ""
@@ -19,6 +24,10 @@ export default class App extends Component {
         this.resetForm = this.resetForm.bind(this);
         this.handleFormChange = this.handleFormChange.bind(this);
     }
+    
+    static defaultProps = {
+    	titleOptions : ["Mr", "Ms", "Mrs", "Doctor", "Sr", "Jr", "Professor", "Director", "CxO", "VP", "M.D.", "Ph.D"]
+    };
 
     // Check the input on the name input field before passing it to the RegexGenerator object.
     updateRegex(event) {
@@ -56,9 +65,14 @@ export default class App extends Component {
     //   Also, ensure the form does not keep certain elements disabled.
     resetForm() {
         this.setState({
-            caseInsensitive : false,
+            caseInsensitive : true,
             spamassassin : false,
+            typosquatProtection : true,
             firstnameExpansion : true,
+            TSLVL : 1,
+            sliceLastName : false,
+            includeTitles : false,
+            titles: [],
             input : "",
             givenName : "", givenNameError : "",
             exempts : "", exemptsError : "", exemptsInput : ""
@@ -70,8 +84,20 @@ export default class App extends Component {
     //   of the page here. This is primarily used by the checkboxes at this time.
     handleFormChange(event) {
         const target = event.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
         const name = target.name;
+        let value = target.type === 'checkbox' ? target.checked : target.value;
+        
+        let selectedOptions = [];
+        if(name === 'titles') {
+        	let options = target.options;
+        	for(let i = 0; i < options.length; i++) {
+        		let opt = options[i];
+        		if(opt && opt.selected) {
+        			selectedOptions.push(opt.value);
+        		}
+        	}
+        	value = selectedOptions;
+        } else if(name === 'TSLVL') { value++; }
 
         this.setState({ [name] : value });
 
@@ -79,7 +105,7 @@ export default class App extends Component {
             this.setState({caseInsensitive : true});
             document.getElementById('caseInsensitive').disabled = true;
         } else if (name === 'spamassassin' && !value) {
-            if(this.state.caseInsensitive) { this.setState({caseInsensitive : false}); }
+            //if(this.state.caseInsensitive) { this.setState({caseInsensitive : false}); }
             document.getElementById('caseInsensitive').disabled = false;
         }
     }
@@ -88,7 +114,6 @@ export default class App extends Component {
         return (
             <div className="App">
                 <div id="header-container" className="form-container">
-                    {/*<img src="resources/toolLogo.svg" id="tool-logo" alt="" /><br />*/}
                     <div id="header-text">{`Spoof Prevention Assistant`}</div>
                 </div>
                 <div id="textbox-container" className="form-container">
@@ -100,31 +125,91 @@ export default class App extends Component {
                 </div>
                 <div id="checkbox-container" className="form-container">
                     <label title="Get rid of mixed-case characters between the square bracket selectors ([])."
-                     for="caseInsensitive">{"Case Insensitive:"}&nbsp;
+                     htmlFor="caseInsensitive">{"Case Insensitive:"}&nbsp;
                     <input type="checkbox" name="caseInsensitive" id="caseInsensitive"
                      checked={this.state.caseInsensitive} onChange={(e)=>{this.handleFormChange(e);}} />
                     <div className="checkboxView"><span>{"X"}</span></div></label>
                     <label style={{float:'right'}} title="Create a SpamAssassin meta-rule that supports exemption by email."
-                     for="spamassassin">{"Spam-Assassin:"}&nbsp;
+                     htmlFor="spamassassin">{"Spam-Assassin:"}&nbsp;
                     <input type="checkbox" name="spamassassin" id="spamassassin"
                      checked={this.state.spamassassin} onChange={(e)=>{this.handleFormChange(e);}} />
                     <div className="checkboxView"><span>{"X"}</span></div></label>
                     <br />
-                    <label title="Expand variations of common first names, for example Bob into Robert, Bobbie, etc."
-                     for="firstnameExpansion">{"Expand First-Name:"}&nbsp;
+                    <label title="Protect against typosquatting (e.g. maliciously replacing 'I' with 'L')."
+                     htmlFor="typosquatProtection">{"Typosquat Protection:"}&nbsp;
+                    <input type="checkbox" name="typosquatProtection" id="typosquatProtection"
+                     checked={this.state.typosquatProtection} onChange={(e)=>{this.handleFormChange(e);}} />
+                    <div className="checkboxView"><span>{"X"}</span></div></label>
+                    <label style={{float:'right'}} title="Expand variations of common first names, for example Bob into Robert, Bobbie, etc."
+                     htmlFor="firstnameExpansion">{"Expand First-Name:"}&nbsp;
                     <input type="checkbox" name="firstnameExpansion" id="firstnameExpansion"
                      checked={this.state.firstnameExpansion} onChange={(e)=>{this.handleFormChange(e);}} />
                     <div className="checkboxView"><span>{"X"}</span></div></label>
-                </div>
-                <div className="form-container" style={{'text-align':'center'}}>
-                    <input type="button" value="Reset" onClick={()=>{this.resetForm()}} />
+                    {this.state.typosquatProtection ? (<div>&#187;
+                    	<select style={{display:'inline-block',margin:'10px 5px 10px 8px'}} size="1" name="TSLVL"
+                    	 id="TSLVL" onChange={(e)=>{this.handleFormChange(e);}}>
+                    	{["1","2","3","4","5"].map((item,index) => {
+                    		return <option key={item} value={index}>{item}</option>
+                    	})}
+                    	</select>
+                    	<span style={{fontSize:'0.7em'}}>
+                    		{"Select the level of typosquatting protection you would like. The higher the value, the stronger the filter."}
+                    	</span>
+                    	<br />
+                    </div>) : <br />}
+                    <label title="Include a selected list of common name prefixes and suffixes (e.g. 'Mr', 'CEO', etc)."
+                     htmlFor="includeTitles">{"Include Titles:"}&nbsp;
+                    <input type="checkbox" name="includeTitles" id="includeTitles"
+                     checked={this.state.includeTitles} onChange={(e)=>{this.handleFormChange(e);}} />
+                    <div className="checkboxView"><span>{"X"}</span></div></label>
+                    <label style={{float:'right'}} title="Chop the last name up into the S(\\.?|mith)? format. RISKY; can cause a lot of false-positive results!"
+                     htmlFor="sliceLastName">{"Slice Last Name:"}&nbsp;
+                    <input type="checkbox" name="sliceLastName" id="sliceLastName"
+                     checked={this.state.sliceLastName} onChange={(e)=>{this.handleFormChange(e);}} />
+                    <div className="checkboxView"><span>{"X"}</span></div></label>
+                    {this.state.includeTitles ? (
+                    	<div style={{display:'block',margin:'10px 0'}}>
+	                    	<div style={{width:'200px'}}>
+	                    		<select style={{float:'left',marginRight:'5px'}} multiple="multiple" size="5"
+	                    		 name="titles" id="titles" onChange={(e)=>{this.handleFormChange(e);}}>
+	                    		 {this.props.titleOptions.map((title, index) => {
+	                    		 	return <option key={title} value={title}>{title}</option>
+	                    		 })}
+	                    		</select>
+	                    		<span style={{fontSize:'0.7em'}}>
+	                    			{"Hold down the CTRL (Windows) or Command (Mac) key to select multiple options."}
+	     		       			</span>
+	                    	</div>
+	                    	<br />
+                    	</div>
+                    ) : null}
+                    <div className="form-container" style={{'textAlign':'center'}}>
+                    	<input type="button" value="Reset" onClick={()=>{this.resetForm()}} />
+                	</div>
+                	{this.state.sliceLastName ? (
+	                	<div style={{textAlign:'center',marginTop:'10px'}}>
+	                		<span style={{fontSize:'0.7em'}}>
+	                			<span style={{color:'#FFAAAA'}}>
+	                				<strong>{"WARNING"}</strong>
+	                				{": Using the 'slice last name' option can cause a high rate of false-positives!"}
+	                			</span><br />
+	                			<span>
+	                				{"There is a possibility of matching the regex to a From header which is only the two initials of the name (e.g. 'From: J S <')."}
+	                				<br />{" Or worse yet, it could match something like 'From: John S <' which is highly undesirable."}
+	                			</span>
+	                		</span>
+	                		<br />
+	                	</div>
+               		) : null}
                 </div>
                 <div className="form-container" id="results-container">
                     <RegexGenerator text={this.state.givenName} exempt={this.state.exempts}
                      caseInsensitive={this.state.caseInsensitive} spamassassin={this.state.spamassassin}
-                     expand={this.state.firstnameExpansion} />
+                     expand={this.state.firstnameExpansion} titles={this.state.titles}
+                     typosquatProtection={this.state.typosquatProtection} sliceLastName={this.state.sliceLastName}
+                     TSLVL={this.state.TSLVL} />
                 </div>
-                <div className="form-container" style={{'text-align':'center','font-size':'10px','margin-bottom':'10px'}}>
+                <div className="form-container" style={{'textAlign':'center','fontSize':'10px','marginBottom':'10px'}}>
                     {"Regex too long? Use the checkbox options to constrain it. Hover over each for more info."}
                 </div>
                 <div className="error-section form-container">
@@ -135,42 +220,42 @@ export default class App extends Component {
                     <i>{`Exemption Errors (if any)`}</i>{` : `}
                     <span style={{'color':'#DD0000'}}>{`${this.state.exemptsError}`}</span>
                 </div>
-                <div className="form-container" style={{'text-align':'center','font-size':'14px'}}>
+                <div className="form-container" style={{'textAlign':'center','fontSize':'14px'}}>
                     {"Test out your regexes "}
                     <a href="https://www.regexr.com/" rel="noopener noreferrer" target="_blank">{"here"}</a>{"."}
                 </div>
                 <div id="help-popup" onClick={()=>{document.getElementById('help-popup').style.display = 'none';}}>
-                    <div id="help-button" onClick={()=>{document.getElementById('help-popup').style.display = 'none';}}>{"X"}</div>
-                    <div id="help-popup-container" className="form-container">
-                        <div id="help-popup-container-text">
-                            <h2>{"Applying Content Filters"}</h2>
-                            <hr />
-                            <p>
-                                {"Content filters generated by this tool can be applied to any email security product "}
-                                {"that uses regex-based content filtering. For example, to apply the generated expression "}
-                                {"to a Barracuda Email Security Gateway, you would go to the "}<strong>{"Block/Accept > "}
-                                {"Content Filtering"}</strong>{" page and add the generated expression as an "}<i>{"Inbound "}
-                                {"Block"}</i>{" for "}<i>{"Headers"}</i>{"."}
-                            </p>
-                            <p>
-                                {"NOTE: Non-Spam-Assassin content filters with Exempt Email Addresses included "}<strong>{"CANNOT"}
-                                </strong>{" be used with a Barracuda ESG/ESS or other content filtering that doesn't support regex "}
-                                {"look-ahead operators (such as: (?!) and (?=))."}
-                            </p>
-                            <h2>{"SpamAssassin Rules"}</h2>
-                            <hr />
-                            <p>
-                                {"The SpamAssassin option is used on systems that use the spamd service to filter and score "}
-                                {"emails, and acts as a "}<strong>{"substitute"}</strong>{" for systems that do not support look-aheads for exemptions."}
-                            </p>
-                            <p>
-                                {"To apply them, either navigate to the "}<i>{"local.cf"}</i>{" file on the target MTA using "}
-                                {"the spamd service, or (if you're using a Barracuda ESG) contact Barracuda Support and tell them to reference "}
-                                <strong>{"Solution #00005971, STEP 8"}</strong>{" for adding the custom rule to your appliance."}
-                            </p>
-                        </div>
-                    </div>
-                </div>
+        			<div id="help-button" onClick={()=>{document.getElementById('help-popup').style.display = 'none';}}>{"X"}</div>
+					<div id="help-popup-container" className="form-container">
+			            <div id="help-popup-container-text">
+			                <h2>{"Applying Content Filters"}</h2>
+			                <hr />
+			                <p>
+			                    {"Content filters generated by this tool can be applied to any email security product "}
+			                    {"that uses regex-based content filtering. For example, to apply the generated expression "}
+			                    {"to a Barracuda Email Security Gateway, you would go to the "}<strong>{"Block/Accept > "}
+			                    {"Content Filtering"}</strong>{" page and add the generated expression as an "}<i>{"Inbound "}
+			                    {"Block"}</i>{" for "}<i>{"Headers"}</i>{"."}
+			                </p>
+			                <p>
+			                    {"NOTE: Non-Spam-Assassin content filters with Exempt Email Addresses included "}<strong>{"CANNOT"}
+			                    </strong>{" be used with a Barracuda ESG/ESS or other content filtering that doesn't support regex "}
+			                    {"look-ahead operators (such as: (?!) and (?=))."}
+			                </p>
+			                <h2>{"SpamAssassin Rules"}</h2>
+			                <hr />
+			                <p>
+			                    {"The SpamAssassin option is used on systems that use the spamd service to filter and score "}
+			                    {"emails, and acts as a "}<strong>{"substitute"}</strong>{" for systems that do not support look-aheads for exemptions."}
+			                </p>
+			                <p>
+			                    {"To apply them, either navigate to the "}<i>{"local.cf"}</i>{" file on the target MTA using "}
+			                    {"the spamd service, or (if you're using a Barracuda ESG) contact Barracuda Support and tell them to reference "}
+			                    <strong>{"Solution #00005971, STEP 8"}</strong>{" for adding the custom rule to your appliance."}
+			                </p>
+			            </div>
+			        </div>
+			    </div>
                 <div id="help-button" onClick={()=>{document.getElementById('help-popup').style.display = 'block';}}>{"?"}</div>
                 <br />
                 <div id="footer-text" className="form-container">
