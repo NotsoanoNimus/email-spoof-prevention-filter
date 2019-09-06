@@ -97,7 +97,11 @@ export default class App extends Component {
         		}
         	}
         	value = selectedOptions;
-        } else if(name === 'TSLVL') { value++; }
+        } else if(name === 'TSLVL') {
+        	value++;
+    	} else if(name === 'includeTitles' && value === false) {
+    		this.setState({titles : []})
+    	}
 
         this.setState({ [name] : value });
 
