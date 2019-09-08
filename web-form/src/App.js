@@ -24,7 +24,7 @@ export default class App extends Component {
         this.resetForm = this.resetForm.bind(this);
         this.handleFormChange = this.handleFormChange.bind(this);
     }
-    
+
     static defaultProps = {
     	titleOptions : ["Mr", "Ms", "Mrs", "Doctor", "Sr", "Jr", "Professor", "Director", "CxO", "VP", "M.D.", "Ph.D"]
     };
@@ -86,7 +86,7 @@ export default class App extends Component {
         const target = event.target;
         const name = target.name;
         let value = target.type === 'checkbox' ? target.checked : target.value;
-        
+
         let selectedOptions = [];
         if(name === 'titles') {
         	let options = target.options;
@@ -101,7 +101,9 @@ export default class App extends Component {
         	value++;
     	} else if(name === 'includeTitles' && value === false) {
     		this.setState({titles : []})
-    	}
+    	} else if(name === 'typosquatProtection' && value === false) {
+            this.setState({TSLVL : 1})
+        }
 
         this.setState({ [name] : value });
 
